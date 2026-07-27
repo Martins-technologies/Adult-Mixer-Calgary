@@ -1,320 +1,146 @@
-# 💕 AdultMixer Calgary
+# AdultMixer Calgary
 
-<div align="center">
+AdultMixer Calgary is a dating web application with account authentication, profile discovery and editing, likes that create matches, one-to-one match messaging, and email-verification support.
 
-![AdultMixer Calgary](https://img.shields.io/badge/AdultMixer-Calgary-ff69b4?style=for-the-badge)
-![React](https://img.shields.io/badge/React-19.2.0-61DAFB?style=for-the-badge&logo=react)
-![Vite](https://img.shields.io/badge/Vite-7.2.4-646CFF?style=for-the-badge&logo=vite)
-![TailwindCSS](https://img.shields.io/badge/Tailwind-4.1.17-38B2AC?style=for-the-badge&logo=tailwind-css)
-![License](https://img.shields.io/badge/License-MIT-green?style=for-the-badge)
+## Tech stack
 
-**A Modern Dating Platform for Meaningful Connections in Calgary**
+Versions below are the dependency specifications declared in the repository's two `package.json` files.
 
-[Live Demo](#) • [Features](#-features) • [Installation](#-installation) • [Documentation](#-project-structure)
+### Frontend
 
-</div>
+| Technology | Declared version | Role |
+| --- | --- | --- |
+| React | `^19.2.0` | UI library |
+| React DOM | `^19.2.0` | Browser rendering |
+| Vite | `^7.2.4` | Development server and production bundler |
+| JavaScript/JSX | No TypeScript package is declared for the frontend | Frontend source language (`src/**/*.jsx`) |
+| React Router DOM | `^7.10.0` | Client-side routing |
+| Tailwind CSS / `@tailwindcss/vite` | `^4.1.17` / `^4.1.17` | Styling and Vite integration |
+| Axios | `^1.13.6` | HTTP client for the backend API |
+| Framer Motion | `^12.34.3` | UI animation |
 
----
+### Backend and database
 
-## 📖 About
+| Technology | Declared version | Role |
+| --- | --- | --- |
+| Node.js | Not pinned (`engines` is not present) | Backend runtime; `@types/node` is declared as `^25.3.0` |
+| TypeScript | `^5.9.3` | Backend source language |
+| Express | `^5.2.1` | HTTP server and API routing |
+| Prisma CLI / Prisma Client | `^6.19.2` / `^6.19.2` | Schema, migrations, and database access |
+| PostgreSQL | Server version not pinned | Database provider configured in `backend/prisma/schema.prisma` |
+| JSON Web Token | `^9.0.3` | Authentication tokens |
+| bcrypt | `^6.0.0` | Password hashing |
+| Resend | `^6.9.3` | Verification email delivery |
 
-**AdultMixer Calgary** is a premium dating web application designed for adults seeking genuine connections, meaningful conversations, and exciting experiences in Calgary. Built with modern web technologies, it offers a seamless, secure, and intuitive user experience.
+## Monorepo structure
 
-### 🎯 Key Highlights
+```text
+Adltmixer-Calgary/
+├── src/                         # Root React/Vite application
+│   ├── Pages/                   # Home, auth, discovery, matches, chat, and profile pages
+│   ├── Routes/                  # Client-side route definitions
+│   ├── components/              # Reusable page components and protected-route wrapper
+│   ├── context/                 # Authentication state and actions
+│   └── services/                # Axios API client
+├── public/                      # Static frontend assets
+├── backend/                     # Independent Express/TypeScript application
+│   ├── src/
+│   │   ├── config/              # Environment and Prisma setup
+│   │   ├── core/modules/        # Auth, user, like, and message modules
+│   │   ├── routes/              # Backend route composition
+│   │   ├── app.ts               # Express middleware and /api mount
+│   │   └── server.ts            # HTTP server entry point
+│   └── prisma/                  # PostgreSQL schema and migrations
+├── package.json                 # Frontend scripts and dependencies
+├── vite.config.js               # Vite and Tailwind plugin configuration
+└── vercel.json                  # Frontend Vercel build and SPA rewrite configuration
 
-- 🔐 **18+ Age Verification** - Secure age gate for adult content
-- 👥 **Smart Profile Matching** - Filter by gender preferences (Men, Women, Everyone)
-- 💬 **Real-time Chat System** - Instant messaging with matches
-- ❤️ **Like & Match System** - Express interest and track connections
-- 📱 **Fully Responsive** - Optimized for mobile, tablet, and desktop
-- 🎨 **Modern UI/UX** - Clean design with smooth animations
-- 🛡️ **Privacy Focused** - Secure data handling and user verification
-
----
-
-## ✨ Features
-
-### 🏠 Home Page
-- Hero section with compelling call-to-action
-- Trust statistics (50K+ members, 100% verified profiles)
-- Feature highlights (Smart Matching, Instant Chat, Verified Profiles)
-- How it works section (3-step process)
-- Safety and security information
-- Responsive navigation with mobile menu
-
-### 🔍 Explore Page
-- Browse 50+ diverse profiles
-- Gender-based filtering (Men, Women, Everyone)
-- Like/Unlike functionality with visual feedback
-- Skip profiles you're not interested in
-- Age verification popup for first-time visitors
-- Real-time liked counter
-- Lazy-loaded profile images for performance
-
-### 💕 Matches Page
-- View all your liked profiles
-- Quick access to profile details
-- Message matched users directly
-- Unlike functionality
-- Empty state for no matches
-
-### 👤 Profile Page
-- Detailed user information (Name, Age, Bio, Status)
-- Online/Offline status indicator
-- Like/Unlike profile
-- Direct messaging option
-- Navigation back to previous page
-
-### 💬 Chat System
-- One-on-one messaging interface
-- Message history display
-- Real-time message sending
-- User-specific chat rooms
-- Clean message bubbles (sender/receiver distinction)
-
-### 📞 Contact Page
-- Contact form with validation
-- Contact information cards (Phone, Email, Location)
-- Embedded Google Maps
-- Professional header section
-
----
-
-## 🛠️ Tech Stack
-
-| Technology | Version | Purpose |
-|------------|---------|---------|
-| **React** | 19.2.0 | UI Framework |
-| **Vite** | 7.2.4 | Build Tool & Dev Server |
-| **React Router DOM** | 7.10.0 | Client-side Routing |
-| **Tailwind CSS** | 4.1.17 | Utility-first CSS Framework |
-| **Lucide React** | 0.555.0 | Icon Library |
-| **ESLint** | 9.39.1 | Code Linting |
-
----
-
-## 📦 Installation
-
-### Prerequisites
-
-- Node.js (v18 or higher)
-- npm or yarn package manager
-
-### Setup Instructions
-
-1. **Clone the repository**
-```bash
-git clone https://github.com/yourusername/Adltmixer-Calgary.git
-cd Adltmixer-Calgary
+Runtime URL namespace (not a repository folder):
+└── /api                         # Express routes for auth, users, likes, and messages
 ```
 
-2. **Install dependencies**
+- The repository root is the Vite frontend. Its `src/` folder contains the React UI, routing, authentication context, and API client; `public/` holds static files.
+- `backend/` is a separately installed and run Express service. Prisma models users, likes, matches, messages, and email-verification tokens in PostgreSQL.
+- There is no top-level `api/` directory. `/api` is the URL prefix mounted by `backend/src/app.ts`, with routes assembled in `backend/src/routes/index.ts`.
+
+## Environment variables
+
+The frontend reads its root `.env`; the backend calls `dotenv.config()` from `backend/src/config/env.ts`, so local backend variables belong in `backend/.env`. Copy the supplied example files before filling in real values:
+
 ```bash
+cp .env.example .env
+cp backend/.env.example backend/.env
+```
+
+Do not commit real credentials.
+
+### Frontend (`.env`)
+
+| Variable | Where it is used | Fallback/default |
+| --- | --- | --- |
+| `VITE_API_BASE_URL` | `src/services/api.js` sets the Axios `baseURL` for all frontend API requests. The URL must include the `/api` suffix. | `http://localhost:5001/api` |
+
+### Backend (`backend/.env`)
+
+| Variable | Where it is used | Fallback/default |
+| --- | --- | --- |
+| `DATABASE_URL` | Required by `backend/src/config/env.ts`; Prisma reads it in `backend/prisma/schema.prisma` for the PostgreSQL datasource. | None; backend startup throws when it is missing. |
+| `JWT_SECRET` | Required by `backend/src/config/env.ts`; signs tokens in `auth.service.ts` and verifies them in `auth.middleware.ts`. | None; backend startup throws when it is missing. |
+| `JWT_EXPIRES_IN` | `backend/src/core/modules/auth/auth.service.ts` sets the lifetime of registration and login tokens. | `7d` |
+| `PORT` | `backend/src/server.ts` selects the port on which Express listens. | `5001` |
+| `FRONTEND_URL` | `backend/src/app.ts` adds the deployed frontend to the CORS allowlist; `email.service.ts` uses it to build verification links. | Empty string (`""`); local origins `http://localhost:5173`, `http://localhost:5001`, and `http://localhost:3000` remain allowed. |
+| `NODE_ENV` | `backend/src/server.ts` reports the current runtime environment. | `development` |
+| `RESEND_API_KEY` | `backend/src/config/env.ts` warns when absent; `email.service.ts` initializes Resend and sends verification emails when present. | Empty string (`""`); email delivery is skipped and the verification link is logged. |
+
+## Local development
+
+Prerequisites are Node.js/npm and a reachable PostgreSQL database. The repository does not pin a Node.js runtime version.
+
+Install the frontend and backend dependencies:
+
+```bash
+# From the repository root
 npm install
+npm --prefix backend install
 ```
 
-3. **Start development server**
+After configuring the environment files, apply the existing Prisma migrations:
+
 ```bash
+npm --prefix backend run migrate:deploy
+```
+
+Run the two development servers together in separate terminals. These commands invoke the actual `dev` scripts in each `package.json`:
+
+```bash
+# Terminal 1 — Vite frontend (repository root)
 npm run dev
 ```
 
-4. **Open in browser**
-```
-http://localhost:5173
+```bash
+# Terminal 2 — Express backend
+npm --prefix backend run dev
 ```
 
-### Build for Production
+By default, Vite serves the frontend at `http://localhost:5173`, and the backend listens at `http://localhost:5001` with API routes under `http://localhost:5001/api`.
+
+Production builds can be checked independently with:
 
 ```bash
 npm run build
+npm --prefix backend run build
 ```
 
-### Preview Production Build
+The backend production entry point is run by `npm --prefix backend start` after a successful backend build.
 
-```bash
-npm run preview
-```
+## Deployment
 
----
+The root frontend is configured to deploy to Vercel using `npm run build`, the `dist` output directory, and the Vite framework preset from `vercel.json`.
 
-## 📁 Project Structure
+The Express/Prisma backend must be deployed as a separate service with PostgreSQL and the backend environment variables above. It is currently **not deployed** because access to the previous Railway deployment was lost. Once a new backend is available, point the Vercel frontend at its public `/api` URL by setting `VITE_API_BASE_URL` in the Vercel project's environment variables and redeploying the frontend.
 
-```
-Adltmixer-Calgary/
-├── public/
-│   └── vite.svg
-├── src/
-│   ├── assets/
-│   │   ├── logo/
-│   │   │   ├── Adultmixer.png
-│   │   │   ├── logo2Navbar.png
-│   │   │   ├── logo3Navbar.png
-│   │   │   ├── logo4Navbar.png
-│   │   │   └── logoNavbar.png
-│   │   └── react.svg
-│   ├── common/
-│   │   ├── Footer.jsx          # Footer component with links
-│   │   └── Navbar.jsx          # Navigation bar with mobile menu
-│   ├── components/
-│   │   ├── contactComponents/
-│   │   │   ├── ContactForm.jsx
-│   │   │   ├── ContactHeader.jsx
-│   │   │   ├── ContactInfoCards.jsx
-│   │   │   └── GoogleMap.jsx
-│   │   └── homeComponents/
-│   │       ├── CallToAction.jsx
-│   │       ├── FeaturesSection.jsx
-│   │       └── HeroSection.jsx
-│   ├── data/
-│   │   └── profiles.js         # Mock user profiles data (50 profiles)
-│   ├── Pages/
-│   │   ├── Chat.jsx            # Chat interface
-│   │   ├── Contact.jsx         # Contact page
-│   │   ├── Explores.jsx        # Browse profiles with filters
-│   │   ├── Home.jsx            # Landing page
-│   │   ├── Login.jsx           # Login page
-│   │   ├── Matches.jsx         # Liked profiles
-│   │   ├── Profile.jsx         # Individual profile view
-│   │   ├── SignUp.jsx          # Registration page
-│   │   └── TopToScroll.jsx     # Scroll to top utility
-│   ├── Routes/
-│   │   └── AppRoutes.jsx       # Route configuration
-│   ├── App.css
-│   ├── App.jsx                 # Main app component
-│   ├── index.css               # Global styles
-│   └── main.jsx                # App entry point
-├── .gitignore
-├── eslint.config.js
-├── index.html
-├── package.json
-├── README.md
-├── vercel.json                 # Vercel deployment config
-└── vite.config.js
-```
+## Known issues / TODO
 
----
-
-## 🚀 Available Scripts
-
-| Command | Description |
-|---------|-------------|
-| `npm run dev` | Start development server with hot reload |
-| `npm run build` | Build optimized production bundle |
-| `npm run preview` | Preview production build locally |
-| `npm run lint` | Run ESLint for code quality checks |
-
----
-
-## 🎨 Design Features
-
-### Color Palette
-- **Primary**: Pink (#EC4899) - Brand color for CTAs and highlights
-- **Secondary**: Rose (#F43F5E) - Gradient accents
-- **Neutral**: Gray shades for text and backgrounds
-- **Accent**: Yellow (#FCD34D) - Special highlights
-
-### Typography
-- Clean, modern sans-serif fonts
-- Responsive font sizes
-- Proper hierarchy and spacing
-
-### Components
-- Rounded corners (rounded-xl, rounded-2xl, rounded-3xl)
-- Smooth hover transitions
-- Shadow effects for depth
-- Gradient backgrounds
-- Icon integration with Lucide React
-
----
-
-## 🔐 Security & Privacy
-
-- **Age Verification**: 18+ popup on first visit
-- **Local Storage**: Secure storage for user preferences
-- **Profile Verification**: Manual review system (mentioned in features)
-- **Data Protection**: Industry-standard encryption (mentioned in UI)
-- **Moderation**: 24/7 content moderation
-
----
-
-## 📱 Responsive Design
-
-- **Mobile First**: Optimized for small screens
-- **Tablet Support**: Adaptive layouts for medium screens
-- **Desktop**: Full-featured experience on large screens
-- **Touch Friendly**: Large tap targets for mobile users
-
----
-
-## 🌐 Deployment
-
-### Vercel (Recommended)
-
-This project includes a `vercel.json` configuration file for seamless deployment.
-
-```bash
-# Install Vercel CLI
-npm i -g vercel
-
-# Deploy
-vercel
-```
-
-### Other Platforms
-
-- **Netlify**: Drag and drop the `dist` folder
-- **GitHub Pages**: Use `gh-pages` package
-- **Custom Server**: Serve the `dist` folder with any static server
-
----
-
-## 🤝 Contributing
-
-Contributions are welcome! Please follow these steps:
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
----
-
-## 👨‍💻 Author
-
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
-
----
-
-## 🙏 Acknowledgments
-
-- [React](https://react.dev/) - UI Framework
-- [Vite](https://vitejs.dev/) - Build Tool
-- [Tailwind CSS](https://tailwindcss.com/) - Styling
-- [Lucide Icons](https://lucide.dev/) - Icon Library
-- [Pravatar](https://pravatar.cc/) - Profile Image Placeholders
-- [Unsplash](https://unsplash.com/) - Stock Images
-
----
-
-## 📞 Support
-
-For support, email support@adultmixercalgary.com or join our Slack channel.
-
----
-
-<div align="center">
-
-**Made with ❤️ in Calgary**
-
-⭐ Star this repo if you find it helpful!
-
-</div>
+- Re-deploy the backend to a separately hosted Node.js service; the previous Railway deployment is unavailable because access was lost.
+- Set `VITE_API_BASE_URL` in Vercel environment variables to the new backend's public URL, including `/api`.
+- Review the catch-all rewrite in `vercel.json` (`/(.*)` to `/`) to confirm it is the intended SPA routing behavior and does not mask assets or future server/API routes.
