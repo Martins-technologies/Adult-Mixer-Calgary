@@ -17,7 +17,11 @@ const allowedOrigins = [
 ];
 
 if (env.FRONTEND_URL) {
-  allowedOrigins.push(env.FRONTEND_URL.trim()); // .trim() guards against accidental spaces
+  allowedOrigins.push(
+    ...env.FRONTEND_URL.split(",")
+      .map((origin) => origin.trim())
+      .filter(Boolean),
+  );
 }
 
 console.log("✅ CORS allowed origins:", allowedOrigins);
