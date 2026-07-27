@@ -3,7 +3,7 @@ import jwt, { SignOptions } from "jsonwebtoken";
 import crypto from "crypto";
 import { prisma } from "../../../config/prisma";
 import { env } from "../../../config/env";
-import { Role, Gender, Preference } from "@prisma/client";
+import { Role, Gender, Preference, Prisma } from "@prisma/client";
 import { AppError } from "../../errors/AppError";
 import { EmailService } from "../../services/email.service";
 
@@ -32,19 +32,35 @@ export class AuthService {
 
     // Create user with emailVerified: true (temporarily disabled verification)
     // TODO: Change to false when domain is verified on Resend
-    const user = await prisma.user.create({
-      data: {
-        email: data.email,
-        password: hashedPassword,
-        firstName: data.firstName,
-        lastName: data.lastName,
-        bio: data.bio,
-        birthDate: new Date(data.birthDate),
-        gender: data.gender,
-        preference: data.preference,
-        emailVerified: true, // Temporarily true - change to false after domain verification
-      },
-    });
+    const user = await prisma.user
+      .create({
+        data: {
+          email: data.email,
+          password: hashedPassword,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          bio: data.bio,
+          birthDate: new Date(data.birthDate),
+          gender: data.gender,
+          preference: data.preference,
+          emailVerified: true, // Temporarily true - change to false after domain verification
+        },
+      })
+      .catch((error: unknown) => {
+        if (
+          error instanceof Prisma.PrismaClientKnownRequestError &&
+          error.code === "P2002" &&
+          Array.isArray(error.meta?.target) &&
+          error.meta.target.includes("email")
+        ) {
+          throw new AppError(
+            "An account with this email already exists. Please log in instead.",
+            409,
+          );
+        }
+
+        throw error;
+      });
 
     // Generate verification token (kept for future use)
     const verificationToken = crypto.randomBytes(32).toString("hex");
