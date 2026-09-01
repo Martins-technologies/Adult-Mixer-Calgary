@@ -82,7 +82,7 @@ export class UserController {
 
     const id = req.params.id as string;
 
-    const user = await UserService.getUserById(id);
+    const user = await UserService.getUserById(id, req.user.userId);
 
     if (!user) {
       throw new AppError("User not found", 404);

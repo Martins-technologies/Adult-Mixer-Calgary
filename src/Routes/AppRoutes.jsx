@@ -9,13 +9,17 @@ import SignUp from "../Pages/SignUp";
 import Login from "../Pages/Login";
 import Profile from "../Pages/Profile";
 import UserProfile from "../Pages/UserProfile";
+import OnboardingProfile from "../Pages/OnboardingProfile";
+import MatchFound from "../Pages/MatchFound";
 import Chat from "../Pages/Chat";
 import TopToScroll from "../Pages/TopToScroll";
 import PrivacyPolicy from "../Pages/PrivacyPolicy";
 import TermsOfService from "../Pages/TermsOfService";
 import VerifyEmail from "../Pages/VerifyEmail";
 import ResendVerification from "../Pages/ResendVerification";
+import Checkout from "../Pages/Checkout";
 import ProtectedRoute from "../components/ProtectedRoute";
+import ProfileCompleteRoute from "../components/ProfileCompleteRoute";
 
 const AppRoutes = () => {
   return (
@@ -25,12 +29,43 @@ const AppRoutes = () => {
         <Route path="/" element={<Home />} />
         <Route path="/contact" element={<Contact />} />
         <Route path="/pricing" element={<Pricing />} />
-        <Route path="/explore" element={<Explores />} />
+        <Route
+          path="/checkout"
+          element={
+            <ProtectedRoute>
+              <Checkout />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/explore"
+          element={
+            <ProfileCompleteRoute>
+              <Explores />
+            </ProfileCompleteRoute>
+          }
+        />
         <Route path="/matches" element={<Matches />} />
         <Route path="/signup" element={<SignUp />} />
         <Route path="/login" element={<Login />} />
         <Route path="/verify-email" element={<VerifyEmail />} />
         <Route path="/resend-verification" element={<ResendVerification />} />
+        <Route
+          path="/match-found"
+          element={
+            <ProtectedRoute>
+              <MatchFound />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/onboarding"
+          element={
+            <ProtectedRoute>
+              <OnboardingProfile />
+            </ProtectedRoute>
+          }
+        />
         <Route
           path="/profile"
           element={

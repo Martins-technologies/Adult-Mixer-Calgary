@@ -25,4 +25,5 @@ export const env = {
   FRONTEND_URL: process.env.FRONTEND_URL || "",
   NODE_ENV: process.env.NODE_ENV || "development",
   RESEND_API_KEY: process.env.RESEND_API_KEY || "",
+  CONTACT_EMAIL: process.env.CONTACT_EMAIL || "support@adultmixercalgary.com",
 };

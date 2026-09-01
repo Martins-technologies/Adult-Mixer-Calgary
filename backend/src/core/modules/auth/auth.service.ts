@@ -6,6 +6,7 @@ import { env } from "../../../config/env";
 import { Role, Gender, Preference, Prisma } from "@prisma/client";
 import { AppError } from "../../errors/AppError";
 import { EmailService } from "../../services/email.service";
+import { isProfileComplete, MatchingUser } from "../matching/matching.utils";
 
 interface RegisterInput {
   email: string;
@@ -108,9 +109,10 @@ export class AuthService {
         profileImageUrl: user.profileImageUrl,
         isOnline: user.isOnline,
         createdAt: user.createdAt,
+        profileComplete: isProfileComplete(user as MatchingUser),
       },
       token,
-      message: "Registration successful! You can now login.", // Temporarily changed
+      message: "Registration successful! You can now login.",
     };
   }
 
@@ -159,6 +161,7 @@ export class AuthService {
         profileImageUrl: user.profileImageUrl,
         isOnline: user.isOnline,
         createdAt: user.createdAt,
+        profileComplete: isProfileComplete(user as MatchingUser),
       },
       token,
     };

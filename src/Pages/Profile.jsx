@@ -1,106 +1,87 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useParams, useNavigate } from "react-router-dom";
+import { Heart, MessageCircle, ArrowLeft } from "lucide-react";
+import toast from "react-hot-toast";
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 const Profile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { user: currentUser } = useAuth();
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isEditing, setIsEditing] = useState(false);
-  const [formData, setFormData] = useState({
-    firstName: "",
-    lastName: "",
-    bio: "",
-    profileImageUrl: "",
-  });
+  const [likeLoading, setLikeLoading] = useState(false);
+
+  const isOwnProfile = !id || (currentUser && id === currentUser.id);
 
   useEffect(() => {
+    if (isOwnProfile && currentUser) {
+      navigate("/profile", { replace: true });
+    }
+  }, [isOwnProfile, currentUser, navigate]);
+
+  useEffect(() => {
+    if (!id || isOwnProfile) return;
+
     const fetchProfile = async () => {
-      console.log("Fetching profile, id:", id);
       setLoading(true);
-
       try {
-        let response;
-        if (id) {
-          console.log("Fetching user by ID:", id);
-          response = await api.get(`/users/${id}`);
-        } else {
-          console.log("Fetching current user profile");
-          response = await api.get("/users/me/profile");
-        }
-
-        console.log("Profile response:", response.data);
+        const response = await api.get(`/users/${id}`);
         setUser(response.data);
-
-        if (!id) {
-          setFormData({
-            firstName: response.data.firstName || "",
-            lastName: response.data.lastName || "",
-            bio: response.data.bio || "",
-            profileImageUrl: response.data.profileImageUrl || "",
-          });
-        }
       } catch (error) {
         console.error("Failed to fetch profile:", error);
-        alert("Failed to load profile. Please try again.");
+        toast.error("Failed to load profile. Please try again.");
       } finally {
         setLoading(false);
       }
     };
 
     fetchProfile();
-  }, [id]);
+  }, [id, isOwnProfile]);
 
-  const handleChange = (e) => {
-    console.log("Field changed:", e.target.name, "=", e.target.value);
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
+  const handleLikeToggle = async () => {
+    if (!user || likeLoading) return;
 
-  const handleSave = async (e) => {
-    if (e) e.preventDefault();
-
-    alert("HANDLE SAVE EXECUTED - Check console and Network tab!");
-    console.log("=== SAVE CLICKED ===");
-    console.log("isEditing:", isEditing);
-    console.log("Sending data:", formData);
+    setLikeLoading(true);
+    const wasLiked = user.isLikedByMe;
 
     try {
-      console.log("Making API call to PATCH /users/me/profile");
-      const response = await api.patch("/users/me/profile", formData);
-      console.log("API Response:", response.data);
-      setUser(response.data);
-      setIsEditing(false);
-      alert("Profile updated successfully!");
+      if (wasLiked) {
+        await api.delete("/likes", { data: { toUserId: user.id } });
+        setUser((prev) => ({
+          ...prev,
+          isLikedByMe: false,
+          isMatched: false,
+          matchId: null,
+        }));
+        toast.success("Like removed");
+      } else {
+        const response = await api.post("/likes", { toUserId: user.id });
+        const matchCreated = response.data.matchCreated;
+        setUser((prev) => ({
+          ...prev,
+          isLikedByMe: true,
+          isMatched: matchCreated || prev.isMatched,
+          matchId: response.data.match?.id ?? prev.matchId,
+        }));
+
+        if (matchCreated) {
+          toast.success("It's a match! You can start chatting now.");
+        } else {
+          toast.success("Profile liked! They'll see you liked them.");
+        }
+      }
     } catch (error) {
-      console.error("Failed to update profile:", error);
-      console.error("Error details:", error.response?.data);
-      alert(
-        "Failed to update profile: " +
-          (error.response?.data?.message || error.message),
+      toast.error(
+        error.response?.data?.message || "Failed to update like. Please try again.",
       );
+    } finally {
+      setLikeLoading(false);
     }
   };
-
-  const handleEditClick = () => {
-    console.log("Edit button clicked - setting isEditing to true");
-    setIsEditing(true);
-  };
-
-  const handleCancelClick = () => {
-    console.log("Cancel button clicked - resetting form");
-    setIsEditing(false);
-    setFormData({
-      firstName: user.firstName || "",
-      lastName: user.lastName || "",
-      bio: user.bio || "",
-      profileImageUrl: user.profileImageUrl || "",
-    });
-  };
-
-  console.log("Profile render - isOwnProfile:", !id, "isEditing:", isEditing);
 
   if (loading) {
     return (
@@ -117,12 +98,11 @@ const Profile = () => {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        Profile not found 😕
+        Profile not found
       </motion.div>
     );
   }
 
-  const isOwnProfile = !id;
   const displayName = `${user.firstName} ${user.lastName || ""}`.trim();
   const age = user.birthDate
     ? new Date().getFullYear() - new Date(user.birthDate).getFullYear()
@@ -133,7 +113,7 @@ const Profile = () => {
       : "https://via.placeholder.com/400x400?text=Profile";
 
   return (
-    <div className="min-h-screen pt-24 px-4 bg-pink-50">
+    <div className="min-h-screen pt-24 px-4 bg-pink-50 pb-10">
       <motion.div
         className="max-w-md mx-auto bg-white rounded-3xl shadow-xl p-6 text-center relative"
         initial={{ opacity: 0, y: 30 }}
@@ -155,6 +135,12 @@ const Profile = () => {
           </motion.span>
         )}
 
+        {user.hasLikedMe && !user.isMatched && (
+          <div className="mb-4 p-3 bg-pink-50 border border-pink-200 rounded-xl text-sm text-pink-700 font-medium">
+            {displayName} liked your profile! Like back to match.
+          </div>
+        )}
+
         <motion.img
           src={imageUrl}
           alt={displayName}
@@ -167,72 +153,33 @@ const Profile = () => {
           }}
         />
 
-        {isOwnProfile && isEditing ? (
-          <motion.div
-            className="mt-4 space-y-3"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-          >
-            <input
-              type="text"
-              name="firstName"
-              value={formData.firstName}
-              onChange={handleChange}
-              placeholder="First Name"
-              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-pink-500 outline-none"
-            />
-            <input
-              type="text"
-              name="lastName"
-              value={formData.lastName}
-              onChange={handleChange}
-              placeholder="Last Name"
-              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-pink-500 outline-none"
-            />
-            <textarea
-              name="bio"
-              value={formData.bio}
-              onChange={handleChange}
-              placeholder="Bio"
-              rows="3"
-              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-pink-500 outline-none"
-            />
-            <input
-              type="text"
-              name="profileImageUrl"
-              value={formData.profileImageUrl}
-              onChange={handleChange}
-              placeholder="Profile Image URL"
-              className="w-full px-4 py-2 border rounded-xl focus:ring-2 focus:ring-pink-500 outline-none"
-            />
-          </motion.div>
-        ) : (
-          <>
-            <motion.h1
-              className="text-3xl font-bold mt-4"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-            >
-              <span className="text-pink-600">Name:</span> {displayName}
-              {age && (
-                <>
-                  <br />
-                  <span className="text-pink-600">Age:</span> {age}
-                </>
-              )}
-            </motion.h1>
+        <motion.h1
+          className="text-3xl font-bold mt-4"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+        >
+          <span className="text-pink-600">Name:</span> {displayName}
+          {age && (
+            <>
+              <br />
+              <span className="text-pink-600">Age:</span> {age}
+            </>
+          )}
+        </motion.h1>
 
-            <motion.p
-              className="text-pink-600 mt-4"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
-            >
-              {user.bio || "No bio available"}
-            </motion.p>
-          </>
+        {user.city && (
+          <p className="text-gray-500 text-sm mt-2">{user.city}</p>
         )}
+
+        <motion.p
+          className="text-pink-600 mt-4"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+        >
+          {user.bio || "No bio available"}
+        </motion.p>
 
         <motion.div
           className="mt-6 space-y-3"
@@ -240,69 +187,57 @@ const Profile = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.6 }}
         >
-          {isOwnProfile ? (
-            <>
-              {isEditing ? (
-                <>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      alert("BUTTON CLICKED!");
-                      console.log("Direct onClick fired");
-                      handleSave();
-                    }}
-                    style={{
-                      width: "100%",
-                      padding: "12px",
-                      backgroundColor: "#db2777",
-                      color: "white",
-                      borderRadius: "12px",
-                      fontWeight: "600",
-                      border: "none",
-                      cursor: "pointer",
-                    }}
-                  >
-                    💾 SAVE CHANGES (TEST)
-                  </button>
-                  <button
-                    type="button"
-                    onClick={handleCancelClick}
-                    className="w-full py-3 border rounded-xl text-gray-600 hover:bg-gray-50 transition transform hover:scale-105 active:scale-95"
-                  >
-                    Cancel
-                  </button>
-                </>
-              ) : (
-                <button
-                  type="button"
-                  onClick={handleEditClick}
-                  className="w-full py-3 bg-pink-600 text-white rounded-xl font-semibold hover:bg-pink-700 transition transform hover:scale-105 active:scale-95"
-                >
-                  Edit Profile
-                </button>
-              )}
-            </>
-          ) : (
-            <>
-              <motion.button
-                onClick={() => navigate(`/chat/${user.id}`)}
-                className="w-full py-3 bg-pink-600 text-white rounded-xl font-semibold hover:bg-pink-700 transition"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Message 💬
-              </motion.button>
+          <motion.button
+            onClick={handleLikeToggle}
+            disabled={likeLoading}
+            className={`w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition disabled:opacity-50 ${
+              user.isLikedByMe
+                ? "bg-red-100 text-red-600 hover:bg-red-200"
+                : "bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:from-pink-700 hover:to-purple-700"
+            }`}
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <Heart
+              size={18}
+              className={user.isLikedByMe ? "fill-red-500 text-red-500" : ""}
+            />
+            {likeLoading
+              ? "Updating..."
+              : user.isLikedByMe
+                ? "Liked"
+                : user.hasLikedMe
+                  ? "Like Back"
+                  : "Like Profile"}
+          </motion.button>
 
-              <motion.button
-                onClick={() => navigate(-1)}
-                className="w-full py-3 border rounded-xl text-gray-600 hover:bg-gray-50"
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                Back
-              </motion.button>
-            </>
+          {user.isMatched ? (
+            <motion.button
+              onClick={() => navigate(`/chat/${user.id}`)}
+              className="w-full py-3 bg-pink-600 text-white rounded-xl font-semibold hover:bg-pink-700 transition flex items-center justify-center gap-2"
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+            >
+              <MessageCircle size={18} />
+              Start Chat
+            </motion.button>
+          ) : (
+            <p className="text-sm text-gray-500 px-2">
+              {user.isLikedByMe
+                ? "Waiting for them to like you back to unlock chat."
+                : "Like this profile to connect. Chat unlocks when you both like each other."}
+            </p>
           )}
+
+          <motion.button
+            onClick={() => navigate(-1)}
+            className="w-full py-3 border rounded-xl text-gray-600 hover:bg-gray-50 flex items-center justify-center gap-2"
+            whileHover={{ scale: 1.02 }}
+            whileTap={{ scale: 0.98 }}
+          >
+            <ArrowLeft size={18} />
+            Back
+          </motion.button>
         </motion.div>
       </motion.div>
     </div>

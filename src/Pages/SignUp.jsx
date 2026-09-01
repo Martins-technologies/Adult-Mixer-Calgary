@@ -146,7 +146,7 @@ const SignUp = () => {
       });
 
       setTimeout(() => {
-        navigate("/explore");
+        navigate("/onboarding");
       }, 2000);
     } catch (error) {
       const errorMessage =

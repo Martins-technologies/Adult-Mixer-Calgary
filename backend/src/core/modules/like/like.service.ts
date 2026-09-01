@@ -131,4 +131,57 @@ export class LikeService {
       likeCount,
     };
   }
+
+  static async getReceivedLikes(userId: string) {
+    const receivedLikes = await prisma.like.findMany({
+      where: {
+        toUserId: userId,
+        fromUser: {
+          deletedAt: null,
+          isBlocked: false,
+        },
+      },
+      include: {
+        fromUser: {
+          select: {
+            id: true,
+            firstName: true,
+            lastName: true,
+            bio: true,
+            gender: true,
+            profileImageUrl: true,
+            birthDate: true,
+            isOnline: true,
+            city: true,
+          },
+        },
+      },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const myLikes = await prisma.like.findMany({
+      where: { fromUserId: userId },
+      select: { toUserId: true },
+    });
+    const likedBackIds = new Set(myLikes.map((l) => l.toUserId));
+
+    const matches = await prisma.match.findMany({
+      where: {
+        OR: [{ user1Id: userId }, { user2Id: userId }],
+      },
+      select: { user1Id: true, user2Id: true },
+    });
+    const matchedIds = new Set(
+      matches.map((m) => (m.user1Id === userId ? m.user2Id : m.user1Id)),
+    );
+
+    return receivedLikes
+      .filter((like) => !matchedIds.has(like.fromUserId))
+      .map((like) => ({
+        likeId: like.id,
+        likedAt: like.createdAt,
+        isLikedBack: likedBackIds.has(like.fromUserId),
+        user: like.fromUser,
+      }));
+  }
 }

@@ -35,4 +35,14 @@ export class LikeController {
 
     res.status(200).json(result);
   });
+
+  static getReceivedLikes = asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    const likes = await LikeService.getReceivedLikes(req.user.userId);
+
+    res.status(200).json(likes);
+  });
 }

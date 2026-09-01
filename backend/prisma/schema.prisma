@@ -10,34 +10,64 @@ datasource db {
 }
 
 model User {
-  id              String     @id @default(uuid())
-  email           String     @unique
-  password        String
-  role            Role       @default(USER)
-  emailVerified   Boolean    @default(false)
-  firstName       String
-  lastName        String?
-  bio             String?
-  birthDate       DateTime
-  gender          Gender
-  preference      Preference @default(EVERYONE)
-  profileImageUrl String?
-  isOnline        Boolean    @default(false)
-  lastSeenAt      DateTime?
-  isBlocked       Boolean    @default(false)
-  deletedAt       DateTime?
-  createdAt       DateTime   @default(now())
-  updatedAt       DateTime   @updatedAt
-  givenLikes      Like[]     @relation("GivenLikes")
-  receivedLikes   Like[]     @relation("ReceivedLikes")
-  matchesAsUser1  Match[]    @relation("MatchUser1")
-  matchesAsUser2  Match[]    @relation("MatchUser2")
-  sentMessages    Message[]  @relation("SentMessages")
+  id                 String              @id @default(uuid())
+  email              String              @unique
+  password           String
+  role               Role                @default(USER)
+  emailVerified      Boolean             @default(false)
+  firstName          String
+  lastName           String?
+  bio                String?
+  birthDate          DateTime
+  gender             Gender
+  preference         Preference          @default(EVERYONE)
+  profileImageUrl    String?
+  sexualOrientation  SexualOrientation?
+  relationshipStatus RelationshipStatus?
+  ethnicity          Ethnicity?
+  religion           Religion?
+  educationLevel     EducationLevel?
+  bodyType           BodyType?
+  hasChildren        Boolean?
+  wantsChildren      WantsChildren?
+  diet               Diet?
+  drinking           Frequency?
+  smoking            Frequency?
+  drugs              Frequency?
+  pets               Pet[]
+  language           String?
+  city               String?             @default("Calgary")
+  latitude           Float?
+  longitude          Float?
+  prefMinAge         Int?
+  prefMaxAge         Int?
+  prefEthnicity      Ethnicity?
+  prefReligion       Religion?
+  prefEducationLevel EducationLevel?
+  prefLanguage       String?
+  prefMaxDistanceKm  Int?                @default(50)
+  profileCompletedAt DateTime?
+  isOnline           Boolean             @default(false)
+  lastSeenAt         DateTime?
+  isBlocked          Boolean             @default(false)
+  deletedAt          DateTime?
+  createdAt          DateTime            @default(now())
+  updatedAt          DateTime            @updatedAt
+  givenLikes         Like[]              @relation("GivenLikes")
+  receivedLikes      Like[]              @relation("ReceivedLikes")
+  givenSkips         Skip[]              @relation("GivenSkips")
+  receivedSkips      Skip[]              @relation("ReceivedSkips")
+  matchesAsUser1     Match[]             @relation("MatchUser1")
+  matchesAsUser2     Match[]             @relation("MatchUser2")
+  sentMessages       Message[]           @relation("SentMessages")
+  subscription       Subscription?
+  contactMessages    ContactMessage[]
 
   @@index([email])
   @@index([gender])
   @@index([preference])
   @@index([deletedAt])
+  @@index([city])
 }
 
 model Like {
@@ -47,6 +77,18 @@ model Like {
   createdAt  DateTime @default(now())
   fromUser   User     @relation("GivenLikes", fields: [fromUserId], references: [id], onDelete: Cascade)
   toUser     User     @relation("ReceivedLikes", fields: [toUserId], references: [id], onDelete: Cascade)
+
+  @@unique([fromUserId, toUserId])
+  @@index([toUserId])
+}
+
+model Skip {
+  id         String   @id @default(uuid())
+  fromUserId String
+  toUserId   String
+  createdAt  DateTime @default(now())
+  fromUser   User     @relation("GivenSkips", fields: [fromUserId], references: [id], onDelete: Cascade)
+  toUser     User     @relation("ReceivedSkips", fields: [toUserId], references: [id], onDelete: Cascade)
 
   @@unique([fromUserId, toUserId])
   @@index([toUserId])
@@ -106,4 +148,130 @@ enum Preference {
   MALE
   FEMALE
   EVERYONE
+}
+
+enum SexualOrientation {
+  STRAIGHT
+  GAY
+  BISEXUAL
+}
+
+enum RelationshipStatus {
+  SINGLE
+  DIVORCED
+  WIDOWED
+}
+
+enum Ethnicity {
+  WHITE
+  BLACK
+  ASIAN
+  SOUTH_ASIAN
+  HISPANIC
+  MIDDLE_EASTERN
+  MIXED
+  OTHER
+}
+
+enum Religion {
+  CHRISTIANITY
+  ISLAM
+  HINDUISM
+  JUDAISM
+  BUDDHISM
+  ATHEIST
+  AGNOSTIC
+  OTHER
+  PREFER_NOT_TO_SAY
+}
+
+enum EducationLevel {
+  HIGH_SCHOOL
+  SOME_COLLEGE
+  UNDERGRADUATE
+  POSTGRADUATE
+}
+
+enum BodyType {
+  SLIM
+  ATHLETIC
+  AVERAGE
+  CURVY
+  PLUS_SIZE
+}
+
+enum Diet {
+  ANYTHING
+  VEGETARIAN
+  VEGAN
+  HALAL
+  KOSHER
+  OTHER
+}
+
+enum Frequency {
+  NEVER
+  RARELY
+  SOMETIMES
+  REGULARLY
+}
+
+enum WantsChildren {
+  WANTS
+  DOESNT_WANT
+  OPEN
+}
+
+enum Pet {
+  HAS_CATS
+  HAS_DOGS
+  OTHER
+  NONE
+}
+
+enum SubscriptionPlan {
+  STARTER
+  PREMIUM
+  ELITE
+}
+
+enum BillingCycle {
+  MONTHLY
+  YEARLY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+}
+
+model ContactMessage {
+  id        String   @id @default(uuid())
+  name      String
+  email     String
+  message   String
+  userId    String?
+  createdAt DateTime @default(now())
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([email])
+  @@index([createdAt])
+}
+
+model Subscription {
+  id           String             @id @default(uuid())
+  userId       String             @unique
+  plan         SubscriptionPlan
+  billingCycle BillingCycle
+  status       SubscriptionStatus @default(ACTIVE)
+  startDate    DateTime           @default(now())
+  endDate      DateTime?
+  cancelledAt  DateTime?
+  createdAt    DateTime           @default(now())
+  updatedAt    DateTime           @updatedAt
+  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([plan])
 }

@@ -1,10 +1,61 @@
-import React from "react";
+import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin } from "lucide-react";
+import { Mail, Phone, MapPin, CheckCircle, AlertCircle } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
+import { submitContactMessage } from "../services/api";
 
 const Contact = () => {
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [submitStatus, setSubmitStatus] = useState(null);
+
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+    if (submitStatus) setSubmitStatus(null);
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      setSubmitStatus({ type: "error", message: "Please fill in all fields." });
+      toast.error("Please fill in all fields.");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      setSubmitStatus(null);
+
+      const response = await submitContactMessage({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        message: formData.message.trim(),
+      });
+
+      setSubmitStatus({
+        type: "success",
+        message: response.data.message || "Message sent successfully!",
+      });
+      toast.success("Message sent successfully!");
+      setFormData({ name: "", email: "", message: "" });
+    } catch (err) {
+      const message =
+        err.response?.data?.message || "Failed to send message. Please try again.";
+      setSubmitStatus({ type: "error", message });
+      toast.error(message);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="w-full bg-gray-50">
+      <Toaster />
       {/* ================= HEADER ================= */}
       <section className="bg-gradient-to-r text-pink-600 py-32">
         <motion.div 
@@ -80,18 +131,42 @@ const Contact = () => {
             Send Us a Message
           </motion.h2>
 
-          <motion.form 
+          <motion.form
             className="space-y-5"
+            onSubmit={handleSubmit}
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ delay: 0.3, duration: 0.6 }}
           >
+            {submitStatus && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className={`flex items-center gap-3 p-4 rounded-xl text-sm font-medium ${
+                  submitStatus.type === "success"
+                    ? "bg-green-50 text-green-700 border border-green-200"
+                    : "bg-red-50 text-red-700 border border-red-200"
+                }`}
+              >
+                {submitStatus.type === "success" ? (
+                  <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                ) : (
+                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                )}
+                {submitStatus.message}
+              </motion.div>
+            )}
+
             <motion.input
               type="text"
+              name="name"
               placeholder="Your Full Name"
+              value={formData.name}
+              onChange={handleChange}
               className="w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-pink-500 outline-none"
               required
+              disabled={isSubmitting}
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -100,9 +175,13 @@ const Contact = () => {
 
             <motion.input
               type="email"
+              name="email"
               placeholder="Your Email Address"
+              value={formData.email}
+              onChange={handleChange}
               className="w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-pink-500 outline-none"
               required
+              disabled={isSubmitting}
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -110,10 +189,14 @@ const Contact = () => {
             />
 
             <motion.textarea
+              name="message"
               rows="5"
               placeholder="Write your message..."
+              value={formData.message}
+              onChange={handleChange}
               className="w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-pink-500 outline-none"
               required
+              disabled={isSubmitting}
               initial={{ opacity: 0, x: -20 }}
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
@@ -122,15 +205,16 @@ const Contact = () => {
 
             <motion.button
               type="submit"
-              className="w-full bg-pink-600 text-white py-3 rounded-xl font-semibold hover:bg-pink-700 transition"
+              disabled={isSubmitting}
+              className="w-full bg-pink-600 text-white py-3 rounded-xl font-semibold hover:bg-pink-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: 0.7 }}
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+              whileHover={{ scale: isSubmitting ? 1 : 1.02 }}
+              whileTap={{ scale: isSubmitting ? 1 : 0.98 }}
             >
-              Submit Secure Message
+              {isSubmitting ? "Sending..." : "Submit Secure Message"}
             </motion.button>
 
             <motion.p 

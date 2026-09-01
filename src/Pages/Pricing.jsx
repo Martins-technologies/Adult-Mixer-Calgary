@@ -1,10 +1,17 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { Check, X, Award, Heart, Crown, Zap, Shield, Star } from "lucide-react";
+import { PLAN_ROUTE_MAP } from "../constants/pricingPlans";
 
 const Pricing = () => {
+  const navigate = useNavigate();
   const [billingCycle, setBillingCycle] = useState("monthly");
+
+  const handleSelectPlan = (planName) => {
+    const planId = PLAN_ROUTE_MAP[planName];
+    navigate(`/checkout?plan=${planId}&billing=${billingCycle}`);
+  };
 
   const pricingPlans = [
     {
@@ -299,6 +306,7 @@ const Pricing = () => {
 
                   {/* CTA Button */}
                   <motion.button
+                    onClick={() => handleSelectPlan(plan.name)}
                     whileHover={{ scale: 1.02 }}
                     whileTap={{ scale: 0.98 }}
                     className={`w-full py-3 rounded-xl text-white font-semibold bg-gradient-to-r ${plan.buttonGradient} transition-all duration-300 shadow-xl hover:shadow-2xl relative z-10 flex items-center justify-center gap-2`}
