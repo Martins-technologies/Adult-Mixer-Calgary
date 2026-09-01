@@ -13,7 +13,6 @@ const Explore = () => {
   const [isAdult, setIsAdult] = useState(null);
   const [filter, setFilter] = useState("everyone");
   const [profiles, setProfiles] = useState([]);
-  const [liked, setLiked] = useState([]);
   const [loading, setLoading] = useState(true);
 
   /* ================= FETCH PROFILES ================= */
@@ -66,38 +65,60 @@ const Explore = () => {
     setProfiles(profiles.filter((p) => p.id !== id));
   };
 
-  const handleLike = async (profile) => {
-    const userId = profile.id;
+  const updateProfileLikeState = (profileId, updates) => {
+    setProfiles((prev) =>
+      prev.map((profile) =>
+        profile.id === profileId ? { ...profile, ...updates } : profile,
+      ),
+    );
+  };
 
-    if (liked.includes(userId)) {
-      return;
-    }
-
-    // Check if user is logged in
+  const handleLikeToggle = async (profile) => {
     if (!user) {
       alert("Please login to like profiles");
       navigate("/login");
       return;
     }
 
-    setLiked([...liked, userId]);
+    const profileId = profile.id;
+    const wasLiked = profile.isLikedByMe;
+    const previousCount = profile.likeCount ?? 0;
+
+    updateProfileLikeState(profileId, {
+      isLikedByMe: !wasLiked,
+      likeCount: wasLiked
+        ? Math.max(0, previousCount - 1)
+        : previousCount + 1,
+    });
 
     try {
-      await api.post("/likes", { toUserId: userId });
+      if (wasLiked) {
+        const response = await api.delete("/likes", {
+          data: { toUserId: profileId },
+        });
+        updateProfileLikeState(profileId, {
+          isLikedByMe: false,
+          likeCount: response.data.likeCount,
+        });
+      } else {
+        const response = await api.post("/likes", { toUserId: profileId });
+        updateProfileLikeState(profileId, {
+          isLikedByMe: true,
+          likeCount: response.data.likeCount,
+        });
+      }
     } catch (error) {
-      console.error("Like failed:", error);
-      if (
-        error.response?.status === 400 &&
-        error.response?.data?.message === "You already liked this user"
-      ) {
-        // Already liked, keep the state
-      } else if (error.response?.status === 401) {
+      console.error("Like toggle failed:", error);
+      updateProfileLikeState(profileId, {
+        isLikedByMe: wasLiked,
+        likeCount: previousCount,
+      });
+
+      if (error.response?.status === 401) {
         alert("Please login to like profiles");
         navigate("/login");
-        setLiked(liked.filter((id) => id !== userId));
       } else {
-        alert("Failed to like user. Please try again.");
-        setLiked(liked.filter((id) => id !== userId));
+        alert("Failed to update like. Please try again.");
       }
     }
   };
@@ -245,7 +266,8 @@ const Explore = () => {
                   ? user.profileImageUrl
                   : "https://via.placeholder.com/400x400?text=Profile";
 
-              const isLiked = liked.includes(user.id);
+              const isLiked = user.isLikedByMe;
+              const likeCount = user.likeCount ?? 0;
 
               return (
                 <motion.div
@@ -276,6 +298,13 @@ const Explore = () => {
                     <p className="text-gray-600 mt-2">
                       {user.bio || "No bio available"}
                     </p>
+                    <p className="text-sm text-pink-600 mt-3 font-semibold flex items-center gap-1">
+                      <Heart
+                        size={16}
+                        className={likeCount > 0 ? "fill-pink-500 text-pink-500" : "text-pink-400"}
+                      />
+                      {likeCount} {likeCount === 1 ? "like" : "likes"}
+                    </p>
                     <div className="mt-6 flex gap-4">
                       <motion.button
                         onClick={() => handleSkip(user.id)}
@@ -286,15 +315,14 @@ const Explore = () => {
                         <X /> Skip
                       </motion.button>
                       <motion.button
-                        onClick={() => !isLiked && handleLike(user)}
-                        disabled={isLiked}
+                        onClick={() => handleLikeToggle(user)}
                         className={`flex-1 py-3 rounded-xl flex justify-center items-center gap-2 font-semibold transition ${
                           isLiked
-                            ? "bg-red-100 text-red-600 cursor-not-allowed"
+                            ? "bg-red-100 text-red-600 hover:bg-red-200"
                             : "bg-white border text-gray-600 hover:bg-gray-100"
                         }`}
-                        whileHover={!isLiked ? { scale: 1.05 } : {}}
-                        whileTap={!isLiked ? { scale: 0.95 } : {}}
+                        whileHover={{ scale: 1.05 }}
+                        whileTap={{ scale: 0.95 }}
                       >
                         <Heart
                           className={`${
@@ -324,21 +352,6 @@ const Explore = () => {
           <p>Try changing filters or come back later.</p>
         </motion.div>
       )}
-
-      {/* LIKED COUNTER */}
-      <AnimatePresence>
-        {liked.length > 0 && (
-          <motion.div
-            className="fixed bottom-6 right-6 bg-pink-600 text-white px-6 py-3 rounded-full shadow-lg"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 200 }}
-          >
-            ❤️ Liked: {liked.length}
-          </motion.div>
-        )}
-      </AnimatePresence>
 
       <style jsx>{`
         @keyframes blob {

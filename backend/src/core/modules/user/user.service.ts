@@ -100,6 +100,53 @@ export class UserService {
     return result;
   }
 
+  private static readonly discoverProfileSelect = {
+    id: true,
+    firstName: true,
+    lastName: true,
+    bio: true,
+    gender: true,
+    preference: true,
+    profileImageUrl: true,
+    birthDate: true,
+    createdAt: true,
+    _count: {
+      select: { receivedLikes: true },
+    },
+  } as const;
+
+  private static async formatDiscoverUsers(
+    users: Array<{
+      id: string;
+      firstName: string;
+      lastName: string | null;
+      bio: string | null;
+      gender: Gender;
+      preference: Preference;
+      profileImageUrl: string | null;
+      birthDate: Date;
+      createdAt: Date;
+      _count: { receivedLikes: number };
+    }>,
+    currentUserId: string | undefined,
+  ) {
+    let likedSet = new Set<string>();
+
+    if (currentUserId) {
+      const myLikes = await prisma.like.findMany({
+        where: { fromUserId: currentUserId },
+        select: { toUserId: true },
+      });
+      likedSet = new Set(myLikes.map((like) => like.toUserId));
+    }
+
+    return users.map(({ _count, ...profile }) => ({
+      ...profile,
+      likeCount: _count.receivedLikes,
+      isLikedByMe: currentUserId ? likedSet.has(profile.id) : false,
+    }));
+  }
+
   static async discover(
     currentUserId: string | undefined,
     limit: number,
@@ -116,19 +163,9 @@ export class UserService {
         },
         skip,
         take: limit,
-        select: {
-          id: true,
-          firstName: true,
-          lastName: true,
-          bio: true,
-          gender: true,
-          preference: true,
-          profileImageUrl: true,
-          birthDate: true,
-          createdAt: true,
-        },
+        select: UserService.discoverProfileSelect,
       });
-      return users;
+      return UserService.formatDiscoverUsers(users, currentUserId);
     }
 
     // Authenticated user - personalized results
@@ -179,20 +216,10 @@ export class UserService {
       },
       skip,
       take: limit,
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        bio: true,
-        gender: true,
-        preference: true,
-        profileImageUrl: true,
-        birthDate: true,
-        createdAt: true,
-      },
+      select: UserService.discoverProfileSelect,
     });
 
-    return users;
+    return UserService.formatDiscoverUsers(users, currentUserId);
   }
 
   static async getMatches(userId: string) {

@@ -2,6 +2,12 @@ import { prisma } from "../../../config/prisma";
 import { AppError } from "../../errors/AppError";
 
 export class LikeService {
+  private static async getLikeCount(toUserId: string) {
+    return prisma.like.count({
+      where: { toUserId },
+    });
+  }
+
   static async createLike(fromUserId: string, toUserId: string) {
     if (fromUserId === toUserId) {
       throw new AppError("You cannot like yourself", 400);
@@ -30,7 +36,7 @@ export class LikeService {
     });
 
     const result = await prisma.$transaction(async (tx) => {
-      const newLike = await tx.like.create({
+      await tx.like.create({
         data: {
           fromUserId,
           toUserId,
@@ -73,6 +79,56 @@ export class LikeService {
       };
     });
 
-    return result;
+    const likeCount = await LikeService.getLikeCount(toUserId);
+
+    return {
+      ...result,
+      likeCount,
+    };
+  }
+
+  static async removeLike(fromUserId: string, toUserId: string) {
+    const existingLike = await prisma.like.findUnique({
+      where: {
+        fromUserId_toUserId: {
+          fromUserId,
+          toUserId,
+        },
+      },
+    });
+
+    if (!existingLike) {
+      throw new AppError("You have not liked this user", 404);
+    }
+
+    const [user1Id, user2Id] =
+      fromUserId < toUserId
+        ? [fromUserId, toUserId]
+        : [toUserId, fromUserId];
+
+    await prisma.$transaction(async (tx) => {
+      await tx.like.delete({
+        where: {
+          fromUserId_toUserId: {
+            fromUserId,
+            toUserId,
+          },
+        },
+      });
+
+      await tx.match.deleteMany({
+        where: {
+          user1Id,
+          user2Id,
+        },
+      });
+    });
+
+    const likeCount = await LikeService.getLikeCount(toUserId);
+
+    return {
+      liked: false,
+      likeCount,
+    };
   }
 }
