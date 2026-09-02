@@ -1,8 +1,21 @@
 import { prisma } from "../../../config/prisma";
 import { AppError } from "../../errors/AppError";
+import { PaymentSubscriptionService } from "../payments/subscription.service";
 
 export class MessageService {
   static async sendMessage(senderId: string, matchId: string, content: string) {
+    const canMessage = await PaymentSubscriptionService.hasFeature(
+      senderId,
+      "messaging",
+    );
+
+    if (!canMessage) {
+      throw new AppError(
+        "Upgrade to Premium to send messages",
+        403,
+      );
+    }
+
     const match = await prisma.match.findUnique({
       where: { id: matchId },
     });

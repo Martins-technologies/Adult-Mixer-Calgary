@@ -1,10 +1,52 @@
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
-import { Check, X, Award, Heart, Crown, Zap, Shield, Star } from "lucide-react";
+import { Check, X, Award, Heart, Crown, Zap, Shield, Star, Loader2 } from "lucide-react";
+import toast, { Toaster } from "react-hot-toast";
+import { PLAN_ROUTE_MAP } from "../constants/pricingPlans";
+import { useAuth } from "../context/AuthContext";
+import { createStripeCheckout } from "../services/payments";
 
 const Pricing = () => {
+  const navigate = useNavigate();
+  const { user } = useAuth();
   const [billingCycle, setBillingCycle] = useState("monthly");
+  const [loadingPlan, setLoadingPlan] = useState(null);
+
+  const handleSelectPlan = async (planName) => {
+    if (!user) {
+      navigate("/login", {
+        state: { from: `/pricing` },
+      });
+      return;
+    }
+
+    const planId = PLAN_ROUTE_MAP[planName];
+    const interval = billingCycle === "monthly" ? "MONTHLY" : "YEARLY";
+
+    try {
+      setLoadingPlan(planName);
+      const response = await createStripeCheckout({
+        plan: planId,
+        billingCycle: interval,
+      });
+
+      const checkoutUrl = response.data?.url;
+      if (!checkoutUrl) {
+        toast.error("Stripe did not return a checkout URL");
+        return;
+      }
+
+      window.location.href = checkoutUrl;
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message ||
+          "Failed to start checkout. Please try again.",
+      );
+    } finally {
+      setLoadingPlan(null);
+    }
+  };
 
   const pricingPlans = [
     {
@@ -101,6 +143,7 @@ const Pricing = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 pt-24 md:pt-28 lg:pt-32 pb-16 md:pb-20 lg:pb-24 px-4 sm:px-6 md:px-8 lg:px-12 relative overflow-hidden">
+      <Toaster />
       {/* Animated Background Elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <motion.div
@@ -299,12 +342,23 @@ const Pricing = () => {
 
                   {/* CTA Button */}
                   <motion.button
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    className={`w-full py-3 rounded-xl text-white font-semibold bg-gradient-to-r ${plan.buttonGradient} transition-all duration-300 shadow-xl hover:shadow-2xl relative z-10 flex items-center justify-center gap-2`}
+                    onClick={() => handleSelectPlan(plan.name)}
+                    disabled={loadingPlan === plan.name}
+                    whileHover={{ scale: loadingPlan === plan.name ? 1 : 1.02 }}
+                    whileTap={{ scale: loadingPlan === plan.name ? 1 : 0.98 }}
+                    className={`w-full py-3 rounded-xl text-white font-semibold bg-gradient-to-r ${plan.buttonGradient} transition-all duration-300 shadow-xl hover:shadow-2xl relative z-10 flex items-center justify-center gap-2 disabled:opacity-60 disabled:cursor-not-allowed`}
                   >
-                    <Zap className="w-5 h-5" />
-                    Get Started Now
+                    {loadingPlan === plan.name ? (
+                      <>
+                        <Loader2 className="w-5 h-5 animate-spin" />
+                        Redirecting...
+                      </>
+                    ) : (
+                      <>
+                        <Zap className="w-5 h-5" />
+                        Get Started Now
+                      </>
+                    )}
                   </motion.button>
                 </div>
               </motion.div>
@@ -386,7 +440,7 @@ const Pricing = () => {
               },
               {
                 question: "What payment methods do you accept?",
-                answer: "We accept all major credit cards (Visa, Mastercard, American Express), debit cards, and PayPal. All payments are processed securely with industry-standard encryption to protect your financial information."
+                answer: "We accept all major credit cards (Visa, Mastercard, American Express) and debit cards via Stripe Checkout. All payments are processed securely with industry-standard encryption — card details never touch our servers."
               },
               {
                 question: "Can I cancel my subscription anytime?",

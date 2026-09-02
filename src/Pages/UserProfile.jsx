@@ -1,15 +1,37 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { motion } from "framer-motion";
-import { User, Mail, FileText, Image, Save } from "lucide-react";
+import { User, Mail, FileText, Image, Save, Heart, Pencil, Crown, Loader2 } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import toast, { Toaster } from "react-hot-toast";
-import { useNavigate } from "react-router-dom";
-import api from "../services/api";
+import { useNavigate, Link } from "react-router-dom";
+import api, { getTopMatches, getPaymentSubscription, cancelPaymentSubscription } from "../services/api";
+import MatchCard from "../components/MatchCard";
+
+const formatMutualMatchForCard = (match) => {
+  const profile = match.user;
+  return {
+    userId: profile.id,
+    name: `${profile.firstName} ${profile.lastName || ""}`.trim(),
+    age: profile.birthDate
+      ? new Date().getFullYear() - new Date(profile.birthDate).getFullYear()
+      : null,
+    photoUrl: profile.profileImageUrl,
+    score: match.score,
+    isMutualMatch: true,
+    city: profile.city,
+  };
+};
 
 const UserProfile = () => {
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, refreshUser } = useAuth();
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(false);
+  const [topMatches, setTopMatches] = useState([]);
+  const [matchesLoading, setMatchesLoading] = useState(false);
+  const [profileComplete, setProfileComplete] = useState(false);
+  const [subscription, setSubscription] = useState(null);
+  const [subscriptionLoading, setSubscriptionLoading] = useState(true);
+  const [cancelling, setCancelling] = useState(false);
   const [formData, setFormData] = useState({
     firstName: "",
     lastName: "",
@@ -17,19 +39,103 @@ const UserProfile = () => {
     profileImageUrl: "",
   });
 
+  const loadTopMatches = useCallback(async () => {
+    setMatchesLoading(true);
+    try {
+      try {
+        const response = await getTopMatches(3);
+        if (Array.isArray(response.data) && response.data.length > 0) {
+          setTopMatches(response.data);
+          return;
+        }
+      } catch (err) {
+        console.error("Failed to fetch top matches:", err);
+      }
+
+      try {
+        const matchesRes = await api.get("/users/matches");
+        if (Array.isArray(matchesRes.data) && matchesRes.data.length > 0) {
+          setTopMatches(matchesRes.data.map(formatMutualMatchForCard));
+          return;
+        }
+      } catch (err) {
+        console.error("Failed to fetch mutual matches:", err);
+      }
+
+      setTopMatches([]);
+    } finally {
+      setMatchesLoading(false);
+    }
+  }, []);
+
+  const loadSubscription = useCallback(async () => {
+    setSubscriptionLoading(true);
+    try {
+      const response = await getPaymentSubscription();
+      setSubscription(response.data);
+    } catch (err) {
+      console.error("Failed to load subscription:", err);
+    } finally {
+      setSubscriptionLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
     if (!user) {
       navigate("/login");
       return;
     }
 
-    setFormData({
-      firstName: user.firstName || "",
-      lastName: user.lastName || "",
-      bio: user.bio || "",
-      profileImageUrl: user.profileImageUrl || "",
-    });
-  }, [user, navigate]);
+    let cancelled = false;
+
+    const loadProfile = async () => {
+      const profile = await refreshUser();
+      if (cancelled) return;
+
+      const data = profile || user;
+      setFormData({
+        firstName: data.firstName || "",
+        lastName: data.lastName || "",
+        bio: data.bio || "",
+        profileImageUrl: data.profileImageUrl || "",
+      });
+
+      const isComplete = Boolean(data.profileComplete);
+      setProfileComplete(isComplete);
+
+      if (isComplete) {
+        await loadTopMatches();
+      } else {
+        setTopMatches([]);
+      }
+    };
+
+    loadProfile();
+    loadSubscription();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [user?.id, navigate, refreshUser, loadTopMatches, loadSubscription]);
+
+  const handleCancelSubscription = async () => {
+    if (!window.confirm("Are you sure you want to cancel your subscription?")) {
+      return;
+    }
+
+    try {
+      setCancelling(true);
+      const response = await cancelPaymentSubscription();
+      toast.success(response.data.message || "Subscription cancelled");
+      await loadSubscription();
+    } catch (err) {
+      toast.error(
+        err.response?.data?.message || "Failed to cancel subscription",
+      );
+    } finally {
+      setCancelling(false);
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -261,7 +367,140 @@ const UserProfile = () => {
             <Save size={20} />
             <span>{isLoading ? "Saving..." : "Save Changes"}</span>
           </motion.button>
+
+          {user.profileComplete && (
+            <Link
+              to="/onboarding?edit=true"
+              className="w-full py-4 border-2 border-pink-300 text-pink-600 text-lg font-bold rounded-xl hover:bg-pink-50 transition flex items-center justify-center space-x-2"
+            >
+              <Pencil size={20} />
+              <span>Edit Matching Profile</span>
+            </Link>
+          )}
         </motion.form>
+
+        {/* Subscription Management */}
+        <div className="mt-10 pt-8 border-t border-pink-100">
+          <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2 mb-4">
+            <Crown className="text-pink-500" size={22} />
+            Subscription
+          </h3>
+
+          {subscriptionLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="w-6 h-6 text-pink-600 animate-spin" />
+            </div>
+          ) : subscription?.tier && subscription.tier !== "FREE" ? (
+            <div className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl p-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <p className="text-lg font-bold text-gray-900">
+                    {subscription.planDetails?.name ?? subscription.plan} Plan
+                  </p>
+                  <p className="text-sm text-gray-600 capitalize">
+                    Status: {subscription.status?.toLowerCase()}
+                    {subscription.paymentProvider &&
+                      ` · via ${subscription.paymentProvider.toLowerCase()}`}
+                  </p>
+                  {subscription.endDate && (
+                    <p className="text-sm text-gray-500 mt-1">
+                      {subscription.status === "CANCELLED"
+                        ? "Access until"
+                        : "Renews"}{" "}
+                      {new Date(subscription.endDate).toLocaleDateString()}
+                    </p>
+                  )}
+                </div>
+                {subscription.status === "ACTIVE" && !subscription.cancelledAt && (
+                  <button
+                    onClick={handleCancelSubscription}
+                    disabled={cancelling}
+                    className="px-5 py-2.5 border-2 border-red-200 text-red-600 rounded-xl font-semibold hover:bg-red-50 transition disabled:opacity-50"
+                  >
+                    {cancelling ? "Cancelling..." : "Cancel Subscription"}
+                  </button>
+                )}
+                {subscription.cancelledAt && subscription.status === "ACTIVE" && (
+                  <p className="text-sm text-amber-700 font-medium">
+                    Cancellation scheduled — access until{" "}
+                    {subscription.endDate
+                      ? new Date(subscription.endDate).toLocaleDateString()
+                      : "period end"}
+                  </p>
+                )}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-6 bg-gray-50 rounded-2xl">
+              <p className="text-gray-600 text-sm mb-3">
+                You are on the free plan. Upgrade to unlock premium features.
+              </p>
+              <Link
+                to="/pricing"
+                className="inline-block px-6 py-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-xl text-sm font-semibold"
+              >
+                View Plans
+              </Link>
+            </div>
+          )}
+        </div>
+
+        {/* Top Matches Widget */}
+        <div className="mt-10 pt-8 border-t border-pink-100">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
+              <Heart className="text-pink-500" size={22} />
+              Your Top Matches
+            </h3>
+            {user.profileComplete && (
+              <Link
+                to="/matches"
+                className="text-sm text-pink-600 font-semibold hover:text-pink-700"
+              >
+                See all
+              </Link>
+            )}
+          </div>
+
+          {!profileComplete ? (
+            <div className="text-center py-6 bg-pink-50 rounded-2xl">
+              <p className="text-gray-600 text-sm mb-3">
+                Complete your matching profile to see top matches.
+              </p>
+              <Link
+                to="/onboarding"
+                className="inline-block px-6 py-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-xl text-sm font-semibold"
+              >
+                Complete profile
+              </Link>
+            </div>
+          ) : matchesLoading ? (
+            <div className="flex gap-4">
+              {[1, 2, 3].map((i) => (
+                <div
+                  key={i}
+                  className="flex-1 h-40 bg-gray-100 rounded-2xl animate-pulse"
+                />
+              ))}
+            </div>
+          ) : topMatches.length > 0 ? (
+            <div className="flex gap-4 overflow-x-auto pb-2">
+              {topMatches.map((match) => (
+                <MatchCard
+                  key={match.userId}
+                  user={match}
+                  score={match.score}
+                  variant="compact"
+                  isMutualMatch={match.isMutualMatch}
+                />
+              ))}
+            </div>
+          ) : (
+            <p className="text-gray-500 text-sm text-center py-4">
+              No matches yet. Check back soon!
+            </p>
+          )}
+        </div>
       </motion.div>
     </div>
   );

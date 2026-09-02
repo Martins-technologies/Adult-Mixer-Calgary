@@ -1,4 +1,4 @@
-# AdultMixer Calgary
+﻿# AdultMixer Calgary
 
 AdultMixer Calgary is a dating web application with account authentication, profile discovery and editing, likes that create matches, one-to-one match messaging, and email-verification support.
 
@@ -36,27 +36,27 @@ Versions below are the dependency specifications declared in the repository's tw
 
 ```text
 Adltmixer-Calgary/
-├── src/                         # Root React/Vite application
-│   ├── Pages/                   # Home, auth, discovery, matches, chat, and profile pages
-│   ├── Routes/                  # Client-side route definitions
-│   ├── components/              # Reusable page components and protected-route wrapper
-│   ├── context/                 # Authentication state and actions
-│   └── services/                # Axios API client
-├── public/                      # Static frontend assets
-├── backend/                     # Independent Express/TypeScript application
-│   ├── src/
-│   │   ├── config/              # Environment and Prisma setup
-│   │   ├── core/modules/        # Auth, user, like, and message modules
-│   │   ├── routes/              # Backend route composition
-│   │   ├── app.ts               # Express middleware and /api mount
-│   │   └── server.ts            # HTTP server entry point
-│   └── prisma/                  # PostgreSQL schema and migrations
-├── package.json                 # Frontend scripts and dependencies
-├── vite.config.js               # Vite and Tailwind plugin configuration
-└── vercel.json                  # Frontend Vercel build and SPA rewrite configuration
+â”œâ”€â”€ src/                         # Root React/Vite application
+â”‚   â”œâ”€â”€ Pages/                   # Home, auth, discovery, matches, chat, and profile pages
+â”‚   â”œâ”€â”€ Routes/                  # Client-side route definitions
+â”‚   â”œâ”€â”€ components/              # Reusable page components and protected-route wrapper
+â”‚   â”œâ”€â”€ context/                 # Authentication state and actions
+â”‚   â””â”€â”€ services/                # Axios API client
+â”œâ”€â”€ public/                      # Static frontend assets
+â”œâ”€â”€ backend/                     # Independent Express/TypeScript application
+â”‚   â”œâ”€â”€ src/
+â”‚   â”‚   â”œâ”€â”€ config/              # Environment and Prisma setup
+â”‚   â”‚   â”œâ”€â”€ core/modules/        # Auth, user, like, and message modules
+â”‚   â”‚   â”œâ”€â”€ routes/              # Backend route composition
+â”‚   â”‚   â”œâ”€â”€ app.ts               # Express middleware and /api mount
+â”‚   â”‚   â””â”€â”€ server.ts            # HTTP server entry point
+â”‚   â””â”€â”€ prisma/                  # PostgreSQL schema and migrations
+â”œâ”€â”€ package.json                 # Frontend scripts and dependencies
+â”œâ”€â”€ vite.config.js               # Vite and Tailwind plugin configuration
+â””â”€â”€ vercel.json                  # Frontend Vercel build and SPA rewrite configuration
 
 Runtime URL namespace (not a repository folder):
-└── /api                         # Express routes for auth, users, likes, and messages
+â””â”€â”€ /api                         # Express routes for auth, users, likes, and messages
 ```
 
 - The repository root is the Vite frontend. Its `src/` folder contains the React UI, routing, authentication context, and API client; `public/` holds static files.
@@ -91,6 +91,12 @@ Do not commit real credentials.
 | `FRONTEND_URL` | `backend/src/app.ts` adds the deployed frontend to the CORS allowlist; `email.service.ts` uses it to build verification links. | Empty string (`""`); local origins `http://localhost:5173`, `http://localhost:5001`, and `http://localhost:3000` remain allowed. |
 | `NODE_ENV` | `backend/src/server.ts` reports the current runtime environment. | `development` |
 | `RESEND_API_KEY` | `backend/src/config/env.ts` warns when absent; `email.service.ts` initializes Resend and sends verification emails when present. | Empty string (`""`); email delivery is skipped and the verification link is logged. |
+| `DIRECT_URL` | Prisma `directUrl` for migrations (Neon and other pooled databases). | Required when using Neon; set to the non-pooled connection string. |
+| `STRIPE_SECRET_KEY` | Stripe SDK initialization in `payments/stripe.service.ts`. | Required at startup. |
+| `STRIPE_WEBHOOK_SECRET` | Verifies Stripe webhook signatures. | Required at startup. |
+| `STRIPE_PRICE_ID_STARTER` / `PREMIUM` / `ELITE` | Stripe Checkout line-item price IDs. | Required at startup. |
+
+See `backend/.env.example` for placeholder values. **Stripe setup and sandbox testing:** see [STRIPE.md](./STRIPE.md).
 
 ## Local development
 
@@ -113,12 +119,12 @@ npm --prefix backend run migrate:deploy
 Run the two development servers together in separate terminals. These commands invoke the actual `dev` scripts in each `package.json`:
 
 ```bash
-# Terminal 1 — Vite frontend (repository root)
+# Terminal 1 â€” Vite frontend (repository root)
 npm run dev
 ```
 
 ```bash
-# Terminal 2 — Express backend
+# Terminal 2 â€” Express backend
 npm --prefix backend run dev
 ```
 
@@ -133,6 +139,35 @@ npm --prefix backend run build
 
 The backend production entry point is run by `npm --prefix backend start` after a successful backend build.
 
+---
+
+## Payments (Stripe)
+
+This app uses **Stripe Checkout** for subscriptions. Tiers are unlocked only after Stripe sends a verified webhook - never from the frontend redirect alone.
+
+| Tier | Yearly price |
+| --- | --- |
+| Starter | $29.99/yr |
+| Premium | $59.99/yr |
+| Elite | $99.99/yr |
+
+**Flow:** `/pricing` -> `/checkout` -> Stripe hosted page -> `/payments/success` (polls until webhook confirms) -> tier active.
+
+**API routes:**
+
+| Method | Endpoint | Purpose |
+| --- | --- | --- |
+| `POST` | `/api/payments/stripe/checkout-session` | Start checkout (JWT) |
+| `POST` | `/api/payments/webhooks/stripe` | Stripe webhooks (signature verified) |
+| `GET` | `/api/payments/subscription` | Current tier/status |
+| `POST` | `/api/payments/cancel` | Cancel subscription |
+
+Plan features and gating rules: `backend/src/core/modules/payments/plans.config.ts`.
+
+**Full Stripe setup and sandbox testing guide:** [STRIPE.md](./STRIPE.md)
+
+---
+
 ## Deployment
 
 The root frontend is configured to deploy to Vercel using `npm run build`, the `dist` output directory, and the Vite framework preset from `vercel.json`.
@@ -144,3 +179,4 @@ The Express/Prisma backend must be deployed as a separate service with PostgreSQ
 - Re-deploy the backend to a separately hosted Node.js service; the previous Railway deployment is unavailable because access was lost.
 - Set `VITE_API_BASE_URL` in Vercel environment variables to the new backend's public URL, including `/api`.
 - Review the catch-all rewrite in `vercel.json` (`/(.*)` to `/`) to confirm it is the intended SPA routing behavior and does not mask assets or future server/API routes.
+ 

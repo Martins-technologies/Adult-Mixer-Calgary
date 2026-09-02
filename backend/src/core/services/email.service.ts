@@ -143,4 +143,53 @@ export class EmailService {
       throw error;
     }
   }
+
+  static async sendContactNotification(
+    name: string,
+    email: string,
+    message: string,
+  ) {
+    const supportEmail = env.CONTACT_EMAIL;
+
+    if (!env.RESEND_API_KEY || !resend) {
+      console.log("⚠️  RESEND_API_KEY not set - Skipping contact email send");
+      console.log(`📧 Contact from ${name} <${email}>: ${message}`);
+      return { id: "dev-mode-skip" };
+    }
+
+    try {
+      const { data, error } = await resend.emails.send({
+        from: "onboarding@resend.dev",
+        to: supportEmail,
+        replyTo: email,
+        subject: `New Contact Message from ${name}`,
+        html: `
+          <!DOCTYPE html>
+          <html>
+            <body style="font-family: Arial, sans-serif; background-color: #f9fafb; padding: 40px;">
+              <div style="max-width: 600px; margin: 0 auto; background: #ffffff; border-radius: 12px; padding: 32px; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                <h2 style="color: #ec4899; margin-top: 0;">New Contact Form Submission</h2>
+                <p><strong>Name:</strong> ${name}</p>
+                <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
+                <hr style="border: none; border-top: 1px solid #e5e7eb; margin: 20px 0;" />
+                <p><strong>Message:</strong></p>
+                <p style="color: #4b5563; line-height: 1.6; white-space: pre-wrap;">${message}</p>
+              </div>
+            </body>
+          </html>
+        `,
+      });
+
+      if (error) {
+        console.error("Resend contact email error:", error);
+        return { id: "email-failed" };
+      }
+
+      console.log("Contact notification sent:", data);
+      return data;
+    } catch (error) {
+      console.error("Contact email service error:", error);
+      return { id: "email-failed" };
+    }
+  }
 }

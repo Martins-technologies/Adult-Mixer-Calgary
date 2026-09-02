@@ -69,11 +69,11 @@ const Chat = () => {
         setMessages(messagesResponse.data);
       } catch (error) {
         console.error("Failed to load chat:", error);
-        const errorMsg = error.response?.data?.message || "Failed to load chat";
+        const errorMsg =
+          error.response?.status === 404
+            ? "You can only chat after you both like each other. Like their profile first!"
+            : error.response?.data?.message || "Failed to load chat";
         setError(errorMsg);
-        if (error.response?.status === 404) {
-          setTimeout(() => navigate("/matches"), 2000);
-        }
       } finally {
         setLoading(false);
       }
@@ -159,14 +159,24 @@ const Chat = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50">
-        <p className="text-xl text-red-600 mb-4">{error}</p>
-        <button
-          onClick={() => navigate("/matches")}
-          className="px-6 py-2 bg-pink-600 text-white rounded-xl hover:bg-pink-700"
-        >
-          Back to Matches
-        </button>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-pink-50 to-purple-50 px-4">
+        <p className="text-xl text-red-600 mb-4 text-center max-w-md">{error}</p>
+        <div className="flex gap-3">
+          {id && (
+            <button
+              onClick={() => navigate(`/profile/${id}`)}
+              className="px-6 py-2 bg-pink-600 text-white rounded-xl hover:bg-pink-700"
+            >
+              View Profile
+            </button>
+          )}
+          <button
+            onClick={() => navigate("/matches")}
+            className="px-6 py-2 border border-pink-300 text-pink-600 rounded-xl hover:bg-pink-50"
+          >
+            Back to Matches
+          </button>
+        </div>
       </div>
     );
   }

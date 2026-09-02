@@ -221,14 +221,16 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
 import { Eye, EyeOff, Mail, Lock, Heart } from "lucide-react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 
 const Login = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
+  const redirectTo = location.state?.from;
 
   const [formData, setFormData] = useState({
     email: "",
@@ -270,12 +272,26 @@ const Login = () => {
         throw new Error("Invalid server response");
       }
 
-      // Save to AuthContext + localStorage
       login(user, token);
+
+      let loggedInUser = user;
+      try {
+        const profileRes = await api.get("/users/me/profile");
+        login(profileRes.data, token);
+        loggedInUser = profileRes.data;
+      } catch {
+        // Keep basic login data if profile fetch fails
+      }
 
       toast.success("Login successful!");
 
-      navigate("/explore");
+      if (redirectTo) {
+        navigate(redirectTo);
+      } else if (loggedInUser.profileComplete) {
+        navigate("/explore");
+      } else {
+        navigate("/onboarding");
+      }
     } catch (err) {
       console.error("Login error:", err);
 

@@ -4,12 +4,13 @@ import helmet from "helmet";
 import routes from "./routes";
 import { errorHandler } from "./core/errors/errorHandler";
 import { env } from "./config/env";
+import { prisma } from "./config/prisma";
+import { PaymentsController } from "./core/modules/payments/payments.controller";
 
 export const app = express();
 
 app.use(helmet());
 
-// Build allowed origins list
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:5001",
@@ -28,7 +29,6 @@ console.log("✅ CORS allowed origins:", allowedOrigins);
 
 const corsOptions: cors.CorsOptions = {
   origin: function (origin, callback) {
-    // Allow requests with no origin (Postman, curl, mobile apps)
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin)) {
@@ -43,18 +43,37 @@ const corsOptions: cors.CorsOptions = {
 };
 
 app.use(cors(corsOptions));
+
+// Stripe webhook requires raw body for signature verification
+app.post(
+  "/api/payments/webhooks/stripe",
+  express.raw({ type: "application/json" }),
+  PaymentsController.handleStripeWebhook,
+);
+
 app.use(express.json());
 
-// Health check endpoint
-app.get("/health", (req, res) => {
-  res.status(200).json({
-    status: "ok",
-    timestamp: new Date().toISOString(),
-    allowedOrigins, // visible in production for easy debugging
-  });
+app.get("/health", async (req, res) => {
+  try {
+    await prisma.$queryRaw`SELECT 1`;
+
+    res.status(200).json({
+      status: "ok",
+      database: "connected",
+      timestamp: new Date().toISOString(),
+      allowedOrigins,
+    });
+  } catch {
+    res.status(503).json({
+      status: "degraded",
+      database: "unreachable",
+      timestamp: new Date().toISOString(),
+      message:
+        "Database is waking up or unreachable. Wait a few seconds and retry.",
+    });
+  }
 });
 
 app.use("/api", routes);
 
-// Global error handler must be LAST
 app.use(errorHandler);

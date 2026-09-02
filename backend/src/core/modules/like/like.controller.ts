@@ -19,4 +19,30 @@ export class LikeController {
 
     res.status(201).json(result);
   });
+
+  static deleteLike = asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    const { toUserId } = req.body;
+
+    if (!toUserId || typeof toUserId !== "string") {
+      throw new AppError("toUserId is required", 400);
+    }
+
+    const result = await LikeService.removeLike(req.user.userId, toUserId);
+
+    res.status(200).json(result);
+  });
+
+  static getReceivedLikes = asyncHandler(async (req: Request, res: Response) => {
+    if (!req.user) {
+      throw new AppError("Unauthorized", 401);
+    }
+
+    const likes = await LikeService.getReceivedLikes(req.user.userId);
+
+    res.status(200).json(likes);
+  });
 }
