@@ -1,5 +1,7 @@
 import { prisma } from "../../../config/prisma";
 import { AppError } from "../../errors/AppError";
+import { PaymentSubscriptionService } from "../payments/subscription.service";
+import { getFeatureFlags } from "../payments/plans.config";
 
 export class LikeService {
   private static async getLikeCount(toUserId: string) {
@@ -11,6 +13,21 @@ export class LikeService {
   static async createLike(fromUserId: string, toUserId: string) {
     if (fromUserId === toUserId) {
       throw new AppError("You cannot like yourself", 400);
+    }
+
+    const tier = await PaymentSubscriptionService.getEffectiveTier(fromUserId);
+    const flags = getFeatureFlags(tier);
+    const dailyLimit = flags.likesPerDay;
+
+    if (dailyLimit !== null) {
+      const todayCount =
+        await PaymentSubscriptionService.getDailyLikeCount(fromUserId);
+      if (todayCount >= dailyLimit) {
+        throw new AppError(
+          `Daily like limit reached (${dailyLimit}/day). Upgrade to Premium for unlimited likes.`,
+          403,
+        );
+      }
     }
 
     const existingLike = await prisma.like.findUnique({
@@ -133,6 +150,18 @@ export class LikeService {
   }
 
   static async getReceivedLikes(userId: string) {
+    const canSeeLikes = await PaymentSubscriptionService.hasFeature(
+      userId,
+      "seeWhoLikedYou",
+    );
+
+    if (!canSeeLikes) {
+      throw new AppError(
+        "Upgrade to Premium to see who liked you",
+        403,
+      );
+    }
+
     const receivedLikes = await prisma.like.findMany({
       where: {
         toUserId: userId,

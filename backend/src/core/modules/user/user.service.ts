@@ -1,9 +1,11 @@
 import { prisma } from "../../../config/prisma";
 import { Prisma, Preference } from "@prisma/client";
+import { AppError } from "../../errors/AppError";
 import {
   isProfileComplete,
   MatchingUser,
 } from "../matching/matching.utils";
+import { PaymentSubscriptionService } from "../payments/subscription.service";
 
 const profileSelect = {
   id: true,
@@ -136,6 +138,26 @@ export class UserService {
     if (data.longitude !== undefined) updateData.longitude = data.longitude;
     if (data.prefMinAge !== undefined) updateData.prefMinAge = data.prefMinAge;
     if (data.prefMaxAge !== undefined) updateData.prefMaxAge = data.prefMaxAge;
+
+    const wantsAdvancedFilters =
+      data.prefEthnicity !== undefined ||
+      data.prefReligion !== undefined ||
+      data.prefEducationLevel !== undefined ||
+      data.prefMaxDistanceKm !== undefined;
+
+    if (wantsAdvancedFilters) {
+      const hasAdvancedFilters = await PaymentSubscriptionService.hasFeature(
+        userId,
+        "advancedFilters",
+      );
+      if (!hasAdvancedFilters) {
+        throw new AppError(
+          "Upgrade to Elite to use advanced filters",
+          403,
+        );
+      }
+    }
+
     if (data.prefEthnicity !== undefined)
       updateData.prefEthnicity = data.prefEthnicity;
     if (data.prefReligion !== undefined)

@@ -1,5 +1,6 @@
 import { prisma } from "../../../config/prisma";
 import { AppError } from "../../errors/AppError";
+import { PaymentSubscriptionService } from "../payments/subscription.service";
 import {
   MatchingUser,
   calculateCompatibilityScore,
@@ -47,6 +48,19 @@ const matchingUserSelect = {
 } as const;
 
 export class MatchingService {
+  private static calculateBasicScore(
+    current: MatchingUser,
+    candidate: MatchingUser,
+  ): number {
+    let score = 50;
+    if (current.city && candidate.city && current.city === candidate.city) {
+      score += 25;
+    }
+    const ageDiff = Math.abs(computeAge(current.birthDate) - computeAge(candidate.birthDate));
+    score += Math.max(0, 25 - ageDiff * 2);
+    return Math.min(100, score);
+  }
+
   private static async getExcludedUserIds(
     userId: string,
     options?: { excludeLikes?: boolean; excludeMatches?: boolean },
@@ -134,6 +148,10 @@ export class MatchingService {
     });
 
     const current = currentUser as MatchingUser;
+    const hasAdvancedMatching = await PaymentSubscriptionService.hasFeature(
+      userId,
+      "advancedMatching",
+    );
 
     const scored = candidates
       .filter((c) => !excluded.has(c.id))
@@ -142,7 +160,9 @@ export class MatchingService {
       .filter((c) => isAgeCompatible(current, c as MatchingUser))
       .map((c) => ({
         candidate: c as MatchingUser,
-        score: calculateCompatibilityScore(current, c as MatchingUser),
+        score: hasAdvancedMatching
+          ? calculateCompatibilityScore(current, c as MatchingUser)
+          : MatchingService.calculateBasicScore(current, c as MatchingUser),
       }))
       .sort((a, b) => b.score - a.score);
 

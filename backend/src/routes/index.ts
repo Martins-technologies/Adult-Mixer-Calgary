@@ -7,6 +7,7 @@ import skipRoutes from "../core/modules/skip/skip.routes";
 import matchingRoutes from "../core/modules/matching/matching.routes";
 import contactRoutes from "../core/modules/contact/contact.routes";
 import subscriptionRoutes from "../core/modules/subscription/subscription.routes";
+import paymentsRoutes from "../core/modules/payments/payments.routes";
 
 const router = Router();
 
@@ -18,6 +19,7 @@ router.use("/messages", messageRoutes);
 router.use("/matching", matchingRoutes);
 router.use("/contact", contactRoutes);
 router.use("/subscriptions", subscriptionRoutes);
+router.use("/payments", paymentsRoutes);
 
 router.get("/health", (req, res) => {
   res.json({ status: "ok" });

@@ -13,6 +13,7 @@ import {
 import toast, { Toaster } from "react-hot-toast";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
+import { createStripeCheckout } from "../services/payments";
 import { BILLING_CYCLES } from "../constants/pricingPlans";
 
 const Checkout = () => {
@@ -29,7 +30,6 @@ const Checkout = () => {
   const [plan, setPlan] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
     const fetchPlan = async () => {
@@ -62,20 +62,26 @@ const Checkout = () => {
   const price =
     billingCycle === "MONTHLY" ? plan?.monthlyPrice : plan?.yearlyPrice;
 
-  const handleSubscribe = async () => {
+  const handleCheckout = async () => {
     try {
       setSubmitting(true);
 
-      const response = await api.post("/subscriptions/subscribe", {
+      const response = await createStripeCheckout({
         plan: planId,
         billingCycle,
       });
 
-      setSuccess(true);
-      toast.success(response.data.message || "Subscription activated!");
+      const checkoutUrl = response.data?.url;
+      if (!checkoutUrl) {
+        toast.error("Stripe did not return a checkout URL");
+        return;
+      }
+
+      window.location.href = checkoutUrl;
     } catch (err) {
       const message =
-        err.response?.data?.message || "Failed to complete subscription";
+        err.response?.data?.message ||
+        "Failed to start Stripe checkout. Check your Stripe configuration.";
       toast.error(message);
     } finally {
       setSubmitting(false);
@@ -86,44 +92,6 @@ const Checkout = () => {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 pt-24">
         <Loader2 className="w-10 h-10 text-pink-600 animate-spin" />
-      </div>
-    );
-  }
-
-  if (success) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 pt-28 pb-16 px-4">
-        <Toaster />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          className="max-w-lg mx-auto bg-white rounded-3xl shadow-2xl p-10 text-center"
-        >
-          <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-            <Check className="w-10 h-10 text-green-600" />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900 mb-3">
-            You're All Set!
-          </h1>
-          <p className="text-gray-600 mb-8">
-            Your <strong>{plan?.name}</strong> subscription is now active. Start
-            exploring premium features!
-          </p>
-          <div className="flex flex-col sm:flex-row gap-3 justify-center">
-            <Link
-              to="/explore"
-              className="px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-xl font-semibold hover:from-pink-700 hover:to-purple-700 transition"
-            >
-              Start Exploring
-            </Link>
-            <Link
-              to="/pricing"
-              className="px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-gray-300 transition"
-            >
-              View Plans
-            </Link>
-          </div>
-        </motion.div>
       </div>
     );
   }
@@ -151,7 +119,8 @@ const Checkout = () => {
               <h1 className="text-2xl font-bold">Complete Your Subscription</h1>
             </div>
             <p className="text-pink-100">
-              Welcome, {user?.firstName}! Review your plan below.
+              Welcome, {user?.firstName}! You will pay securely via Stripe
+              Checkout.
             </p>
           </div>
 
@@ -176,7 +145,10 @@ const Checkout = () => {
 
               <ul className="space-y-2">
                 {plan?.features?.map((feature, idx) => (
-                  <li key={idx} className="flex items-center gap-2 text-sm text-gray-700">
+                  <li
+                    key={idx}
+                    className="flex items-center gap-2 text-sm text-gray-700"
+                  >
                     <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
                     {feature}
                   </li>
@@ -191,7 +163,10 @@ const Checkout = () => {
               </div>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
-                  <span className="text-gray-600">{plan?.name} ({billingCycle === "MONTHLY" ? "Monthly" : "Yearly"})</span>
+                  <span className="text-gray-600">
+                    {plan?.name} (
+                    {billingCycle === "MONTHLY" ? "Monthly" : "Yearly"})
+                  </span>
                   <span className="font-medium">${price?.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between border-t pt-2 font-bold text-gray-900">
@@ -199,6 +174,9 @@ const Checkout = () => {
                   <span>${price?.toFixed(2)}</span>
                 </div>
               </div>
+              <p className="text-xs text-gray-500 mt-3">
+                Powered by Stripe · Card details never touch our servers
+              </p>
             </div>
 
             <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
@@ -207,7 +185,7 @@ const Checkout = () => {
             </div>
 
             <motion.button
-              onClick={handleSubscribe}
+              onClick={handleCheckout}
               disabled={submitting}
               whileHover={{ scale: submitting ? 1 : 1.02 }}
               whileTap={{ scale: submitting ? 1 : 0.98 }}
@@ -216,19 +194,20 @@ const Checkout = () => {
               {submitting ? (
                 <>
                   <Loader2 className="w-5 h-5 animate-spin" />
-                  Processing...
+                  Redirecting to Stripe...
                 </>
               ) : (
                 <>
                   <Heart className="w-5 h-5" />
-                  Confirm Subscription
+                  Pay with Stripe
                 </>
               )}
             </motion.button>
 
             <p className="text-xs text-gray-400 text-center mt-4">
-              By subscribing, you agree to our Terms of Service. You can cancel
-              anytime from your profile settings.
+              By subscribing, you agree to our Terms of Service. Your
+              subscription is confirmed only after Stripe verifies payment via
+              webhook.
             </p>
           </div>
         </motion.div>

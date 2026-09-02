@@ -3,7 +3,7 @@ import axios from "axios";
 const api = axios.create({
   baseURL: import.meta.env.VITE_API_BASE_URL || "http://localhost:5001/api",
   withCredentials: true,
-  timeout: 10000,
+  timeout: 30000,
 });
 
 api.interceptors.request.use(
@@ -62,5 +62,9 @@ export const getMySubscription = () => api.get("/subscriptions/me");
 export const subscribeToPlan = (data) => api.post("/subscriptions/subscribe", data);
 
 export const cancelSubscription = () => api.post("/subscriptions/cancel");
+
+export const getPaymentSubscription = () => api.get("/payments/subscription");
+
+export const cancelPaymentSubscription = () => api.post("/payments/cancel");
 
 export const getReceivedLikes = () => api.get("/likes/received");

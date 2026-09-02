@@ -18,6 +18,8 @@ import TermsOfService from "../Pages/TermsOfService";
 import VerifyEmail from "../Pages/VerifyEmail";
 import ResendVerification from "../Pages/ResendVerification";
 import Checkout from "../Pages/Checkout";
+import PaymentSuccess from "../Pages/PaymentSuccess";
+import PaymentCancel from "../Pages/PaymentCancel";
 import ProtectedRoute from "../components/ProtectedRoute";
 import ProfileCompleteRoute from "../components/ProfileCompleteRoute";
 
@@ -34,6 +36,22 @@ const AppRoutes = () => {
           element={
             <ProtectedRoute>
               <Checkout />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payments/success"
+          element={
+            <ProtectedRoute>
+              <PaymentSuccess />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/payments/cancel"
+          element={
+            <ProtectedRoute>
+              <PaymentCancel />
             </ProtectedRoute>
           }
         />
