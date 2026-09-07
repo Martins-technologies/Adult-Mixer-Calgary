@@ -20,22 +20,34 @@ const allowedOrigins = [
 if (env.FRONTEND_URL) {
   allowedOrigins.push(
     ...env.FRONTEND_URL.split(",")
-      .map((origin) => origin.trim())
+      .map((origin) => origin.trim().replace(/\/$/, ""))
       .filter(Boolean),
   );
 }
 
+function isAllowedOrigin(origin: string): boolean {
+  if (allowedOrigins.includes(origin)) return true;
+
+  try {
+    const url = new URL(origin);
+    return url.protocol === "https:" && url.hostname.endsWith(".vercel.app");
+  } catch {
+    return false;
+  }
+}
+
 console.log("✅ CORS allowed origins:", allowedOrigins);
+console.log("✅ CORS also allows: https://*.vercel.app");
 
 const corsOptions: cors.CorsOptions = {
   origin: function (origin, callback) {
     if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
+    if (isAllowedOrigin(origin)) {
       callback(null, true);
     } else {
       console.error(`🚫 CORS blocked request from origin: ${origin}`);
-      callback(new Error(`CORS policy: origin '${origin}' is not allowed`));
+      callback(null, false);
     }
   },
   credentials: true,
