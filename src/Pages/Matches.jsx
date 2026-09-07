@@ -3,9 +3,60 @@ import { motion } from "framer-motion";
 import { useNavigate } from "react-router-dom";
 import { Search, Heart, MessageCircle, Sparkles, UserPlus } from "lucide-react";
 import toast from "react-hot-toast";
-import api, { getReceivedLikes } from "../services/api";
+import api, { getReceivedLikes, getTopMatches } from "../services/api";
 import { useAuth } from "../context/AuthContext";
 import { useLikes } from "../context/LikesContext";
+
+const formatTopMutualMatch = (topMatch) => ({
+  matchId: topMatch.userId,
+  matchedAt: null,
+  score: topMatch.score,
+  user: {
+    id: topMatch.userId,
+    firstName: topMatch.name?.split(" ")[0] || topMatch.name || "",
+    lastName: topMatch.name?.split(" ").slice(1).join(" ") || "",
+    profileImageUrl: topMatch.photoUrl,
+    bio: null,
+    birthDate: topMatch.age
+      ? new Date(new Date().getFullYear() - topMatch.age, 0, 1).toISOString()
+      : null,
+  },
+});
+
+const loadAllMutualMatches = async () => {
+  const matchMap = new Map();
+
+  try {
+    const matchesRes = await api.get("/users/matches");
+    if (Array.isArray(matchesRes.data)) {
+      matchesRes.data.forEach((match) => {
+        matchMap.set(match.user.id, match);
+      });
+    }
+  } catch (err) {
+    console.error("Failed to fetch mutual matches:", err);
+  }
+
+  try {
+    const topRes = await getTopMatches(100);
+    if (Array.isArray(topRes.data)) {
+      topRes.data
+        .filter((match) => match.isMutualMatch)
+        .forEach((match) => {
+          const existing = matchMap.get(match.userId);
+          if (existing) {
+            matchMap.set(match.userId, { ...existing, score: match.score });
+          } else {
+            matchMap.set(match.userId, formatTopMutualMatch(match));
+          }
+        });
+    }
+  } catch (err) {
+    console.error("Failed to fetch top mutual matches:", err);
+  }
+
+  return Array.from(matchMap.values());
+};
 
 const Matches = () => {
   const [search, setSearch] = useState("");
@@ -27,19 +78,25 @@ const Matches = () => {
         return;
       }
 
-      try {
-        const [matchesRes, likesRes] = await Promise.all([
-          api.get("/users/matches"),
-          getReceivedLikes(),
-        ]);
-        setMatches(matchesRes.data);
-        setReceivedLikes(likesRes.data);
-      } catch (error) {
-        console.error("Failed to fetch matches:", error);
+      const [matchesResult, likesResult] = await Promise.allSettled([
+        loadAllMutualMatches(),
+        getReceivedLikes(),
+      ]);
+
+      if (matchesResult.status === "fulfilled") {
+        setMatches(matchesResult.value);
+      } else {
+        console.error("Failed to fetch matches:", matchesResult.reason);
         toast.error("Failed to load matches. Please try again.");
-      } finally {
-        setLoading(false);
       }
+
+      if (likesResult.status === "fulfilled") {
+        setReceivedLikes(likesResult.value.data);
+      } else {
+        setReceivedLikes([]);
+      }
+
+      setLoading(false);
     };
 
     fetchData();
@@ -54,8 +111,8 @@ const Matches = () => {
         setReceivedLikes((prev) =>
           prev.filter((item) => item.user.id !== profileUser.id),
         );
-        const matchesRes = await api.get("/users/matches");
-        setMatches(matchesRes.data);
+        const refreshedMatches = await loadAllMutualMatches();
+        setMatches(refreshedMatches);
       } else {
         markLiked(profileUser.id);
         setReceivedLikes((prev) =>
@@ -143,7 +200,7 @@ const Matches = () => {
     );
   }
 
-  const renderUserCard = (profileUser, actions, key) => {
+  const renderUserCard = (profileUser, actions, key, score) => {
     const imageUrl =
       profileUser.profileImageUrl || "https://via.placeholder.com/400";
     const fullName =
@@ -178,6 +235,11 @@ const Matches = () => {
           <motion.div className="absolute top-4 left-4" whileHover={{ scale: 1.2, rotate: 15 }}>
             <Heart className="text-white fill-pink-500 drop-shadow-lg" size={24} />
           </motion.div>
+          {score != null && (
+            <span className="absolute top-4 right-4 bg-pink-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+              {score}% match
+            </span>
+          )}
         </div>
 
         <div className="p-5">
@@ -325,6 +387,7 @@ const Matches = () => {
                   </motion.button>
                 </div>,
                 match.matchId,
+                match.score,
               ),
             )}
           </div>
