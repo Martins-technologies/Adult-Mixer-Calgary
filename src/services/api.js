@@ -28,7 +28,7 @@ api.interceptors.response.use(
     if (error.message === "Network Error") {
       console.error("Network Error - Backend URL:", api.defaults.baseURL);
       console.error(
-        "Make sure VITE_API_BASE_URL is set in Vercel environment variables",
+        "Request failed before reaching the API. Common causes: backend is down, CORS blocked this origin, or VITE_API_BASE_URL is wrong. Check the browser console for a CORS policy message.",
       );
     }
     return Promise.reject(error);
