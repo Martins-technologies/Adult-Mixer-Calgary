@@ -5,6 +5,7 @@ import { Search, Heart, MessageCircle, Sparkles, UserPlus } from "lucide-react";
 import toast from "react-hot-toast";
 import api, { getReceivedLikes } from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { useLikes } from "../context/LikesContext";
 
 const Matches = () => {
   const [search, setSearch] = useState("");
@@ -13,6 +14,7 @@ const Matches = () => {
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
   const { user, loading: authLoading } = useAuth();
+  const { markLiked } = useLikes();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -55,6 +57,7 @@ const Matches = () => {
         const matchesRes = await api.get("/users/matches");
         setMatches(matchesRes.data);
       } else {
+        markLiked(profileUser.id);
         setReceivedLikes((prev) =>
           prev.map((item) =>
             item.user.id === profileUser.id

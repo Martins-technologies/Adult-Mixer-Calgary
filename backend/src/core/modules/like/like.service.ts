@@ -149,6 +149,15 @@ export class LikeService {
     };
   }
 
+  static async getSentLikes(userId: string) {
+    const sentLikes = await prisma.like.findMany({
+      where: { fromUserId: userId },
+      select: { toUserId: true },
+    });
+
+    return sentLikes.map((like) => like.toUserId);
+  }
+
   static async getReceivedLikes(userId: string) {
     const canSeeLikes = await PaymentSubscriptionService.hasFeature(
       userId,

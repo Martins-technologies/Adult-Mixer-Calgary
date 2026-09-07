@@ -122,7 +122,7 @@ export const PLANS: PlanConfig[] = [
 
 export const FREE_FEATURE_FLAGS: PlanFeatureFlags = {
   browseProfiles: true,
-  likesPerDay: 0,
+  likesPerDay: 5,
   messaging: false,
   videoChat: false,
   seeWhoLikedYou: false,
