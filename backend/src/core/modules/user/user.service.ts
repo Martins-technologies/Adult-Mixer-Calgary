@@ -139,11 +139,12 @@ export class UserService {
     if (data.prefMinAge !== undefined) updateData.prefMinAge = data.prefMinAge;
     if (data.prefMaxAge !== undefined) updateData.prefMaxAge = data.prefMaxAge;
 
+    // Distance is a core onboarding preference (required for profileComplete).
+    // Elite-only filters are ethnicity / religion / education.
     const wantsAdvancedFilters =
       data.prefEthnicity !== undefined ||
       data.prefReligion !== undefined ||
-      data.prefEducationLevel !== undefined ||
-      data.prefMaxDistanceKm !== undefined;
+      data.prefEducationLevel !== undefined;
 
     if (wantsAdvancedFilters) {
       const hasAdvancedFilters = await PaymentSubscriptionService.hasFeature(
