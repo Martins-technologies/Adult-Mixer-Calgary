@@ -31,8 +31,13 @@ export const AuthProvider = ({ children }) => {
         const response = await api.get("/users/me/profile");
         setUser(response.data);
         localStorage.setItem("user", JSON.stringify(response.data));
-      } catch {
-        // Keep stored user if refresh fails
+      } catch (error) {
+        if (error.response?.status === 401) {
+          localStorage.removeItem("token");
+          localStorage.removeItem("user");
+          setToken(null);
+          setUser(null);
+        }
       } finally {
         setLoading(false);
       }

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 import { motion } from "framer-motion";
 
@@ -9,6 +9,7 @@ import { useNavigate, useLocation, Navigate } from "react-router-dom";
 import toast from "react-hot-toast";
 
 import { useAuth } from "../context/AuthContext";
+import { useLikes } from "../context/LikesContext";
 
 import api from "../services/api";
 
@@ -147,12 +148,18 @@ const MatchFound = () => {
   const location = useLocation();
 
   const { user } = useAuth();
+  const { isLiked, markLiked } = useLikes();
 
   const match = location.state?.match;
 
   const [liked, setLiked] = useState(false);
-
   const [likeLoading, setLikeLoading] = useState(false);
+
+  useEffect(() => {
+    if (match?.userId) {
+      setLiked(isLiked(match.userId));
+    }
+  }, [match?.userId, isLiked]);
 
 
 
@@ -167,6 +174,7 @@ const MatchFound = () => {
       const response = await api.post("/likes", { toUserId: match.userId });
 
       setLiked(true);
+      markLiked(match.userId);
 
       if (response.data.matchCreated) {
 

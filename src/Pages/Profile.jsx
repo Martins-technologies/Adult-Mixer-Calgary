@@ -5,11 +5,13 @@ import { Heart, MessageCircle, ArrowLeft } from "lucide-react";
 import toast from "react-hot-toast";
 import api from "../services/api";
 import { useAuth } from "../context/AuthContext";
+import { useLikes } from "../context/LikesContext";
 
 const Profile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, loading: authLoading } = useAuth();
+  const { isLiked, markLiked, markUnliked, likedUserIds } = useLikes();
 
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -24,7 +26,7 @@ const Profile = () => {
   }, [isOwnProfile, currentUser, navigate]);
 
   useEffect(() => {
-    if (!id || isOwnProfile) return;
+    if (!id || isOwnProfile || authLoading) return;
 
     const fetchProfile = async () => {
       setLoading(true);
@@ -40,17 +42,28 @@ const Profile = () => {
     };
 
     fetchProfile();
-  }, [id, isOwnProfile]);
+  }, [id, isOwnProfile, authLoading]);
+
+  useEffect(() => {
+    if (!id) return;
+
+    setUser((prev) =>
+      prev
+        ? { ...prev, isLikedByMe: prev.isLikedByMe || likedUserIds.has(id) }
+        : prev,
+    );
+  }, [likedUserIds, id]);
 
   const handleLikeToggle = async () => {
     if (!user || likeLoading) return;
 
     setLikeLoading(true);
-    const wasLiked = user.isLikedByMe;
+    const wasLiked = user.isLikedByMe || isLiked(user.id);
 
     try {
       if (wasLiked) {
         await api.delete("/likes", { data: { toUserId: user.id } });
+        markUnliked(user.id);
         setUser((prev) => ({
           ...prev,
           isLikedByMe: false,
@@ -60,6 +73,7 @@ const Profile = () => {
         toast.success("Like removed");
       } else {
         const response = await api.post("/likes", { toUserId: user.id });
+        markLiked(user.id);
         const matchCreated = response.data.matchCreated;
         setUser((prev) => ({
           ...prev,
@@ -83,7 +97,7 @@ const Profile = () => {
     }
   };
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen pt-28 px-4 bg-gradient-to-b from-pink-50 to-white flex items-center justify-center">
         <p className="text-gray-600">Loading profile...</p>
@@ -191,7 +205,7 @@ const Profile = () => {
             onClick={handleLikeToggle}
             disabled={likeLoading}
             className={`w-full py-3 rounded-xl font-semibold flex items-center justify-center gap-2 transition disabled:opacity-50 ${
-              user.isLikedByMe
+              user.isLikedByMe || isLiked(user.id)
                 ? "bg-red-100 text-red-600 hover:bg-red-200"
                 : "bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:from-pink-700 hover:to-purple-700"
             }`}
@@ -200,11 +214,15 @@ const Profile = () => {
           >
             <Heart
               size={18}
-              className={user.isLikedByMe ? "fill-red-500 text-red-500" : ""}
+              className={
+                user.isLikedByMe || isLiked(user.id)
+                  ? "fill-red-500 text-red-500"
+                  : ""
+              }
             />
             {likeLoading
               ? "Updating..."
-              : user.isLikedByMe
+              : user.isLikedByMe || isLiked(user.id)
                 ? "Liked"
                 : user.hasLikedMe
                   ? "Like Back"
@@ -223,7 +241,7 @@ const Profile = () => {
             </motion.button>
           ) : (
             <p className="text-sm text-gray-500 px-2">
-              {user.isLikedByMe
+              {user.isLikedByMe || isLiked(user.id)
                 ? "Waiting for them to like you back to unlock chat."
                 : "Like this profile to connect. Chat unlocks when you both like each other."}
             </p>

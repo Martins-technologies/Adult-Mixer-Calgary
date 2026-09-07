@@ -5,12 +5,15 @@ import { BrowserRouter } from 'react-router-dom'
 import './index.css'
 import App from './App.jsx'
 import { AuthProvider } from './context/AuthContext'
+import { LikesProvider } from './context/LikesContext'
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
       <AuthProvider>
-        <App />
+        <LikesProvider>
+          <App />
+        </LikesProvider>
       </AuthProvider>
     </BrowserRouter>
   </StrictMode>

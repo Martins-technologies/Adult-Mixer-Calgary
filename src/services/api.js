@@ -68,3 +68,5 @@ export const getPaymentSubscription = () => api.get("/payments/subscription");
 export const cancelPaymentSubscription = () => api.post("/payments/cancel");
 
 export const getReceivedLikes = () => api.get("/likes/received");
+
+export const getSentLikes = () => api.get("/likes/sent");
