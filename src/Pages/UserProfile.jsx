@@ -204,11 +204,11 @@ const UserProfile = () => {
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-pink-100 via-purple-50 to-pink-50 px-4 py-28">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#F8F4EF] px-4 py-28 text-[#2B171D]">
       <Toaster />
 
       <motion.div
-        className="w-full max-w-2xl bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-10 border border-pink-100"
+        className="w-full max-w-2xl bg-[#FAF0F3] rounded-3xl shadow-xl p-8 md:p-10 border border-[#F6D1DA]"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, type: "spring" }}
@@ -219,13 +219,13 @@ const UserProfile = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mb-4">
-            <User className="text-white" size={32} />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#7C1835] rounded-full mb-4 shadow-md">
+            <User className="text-white" size={30} />
           </div>
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-2">
+          <h2 className="text-4xl font-extrabold text-[#7C1835] mb-2">
             My Profile
           </h2>
-          <p className="text-gray-600 text-sm">
+          <p className="text-[#6B545A] text-sm font-medium">
             Update your profile information
           </p>
         </motion.div>
@@ -240,11 +240,11 @@ const UserProfile = () => {
             <img
               src={formData.profileImageUrl}
               alt="Profile"
-              className="w-32 h-32 rounded-full object-cover border-4 border-pink-200"
+              className="w-32 h-32 rounded-full object-cover border-4 border-[#C88B7B] shadow-md"
             />
           ) : (
-            <div className="w-32 h-32 rounded-full bg-gradient-to-br from-pink-200 to-purple-200 flex items-center justify-center border-4 border-pink-300">
-              <User size={48} className="text-pink-600" />
+            <div className="w-32 h-32 rounded-full bg-[#7C1835] flex items-center justify-center border-4 border-[#C88B7B] shadow-md">
+              <User size={48} className="text-white" />
             </div>
           )}
         </motion.div>
@@ -258,12 +258,12 @@ const UserProfile = () => {
         >
           <div className="grid md:grid-cols-2 gap-5">
             <div>
-              <label className="block text-gray-700 font-semibold mb-2 text-sm">
+              <label className="block text-[#2B171D] font-bold mb-2 text-sm">
                 First Name
               </label>
               <div className="relative">
                 <User
-                  className="absolute left-4 top-3.5 text-gray-400"
+                  className="absolute left-4 top-3.5 text-[#7C1835]"
                   size={20}
                 />
                 <input
@@ -272,19 +272,19 @@ const UserProfile = () => {
                   placeholder="First Name"
                   value={formData.firstName}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-600 focus:border-transparent outline-none transition"
+                  className="w-full pl-12 pr-4 py-3 border border-[#F6D1DA] bg-white rounded-xl focus:ring-2 focus:ring-[#7C1835] outline-none text-[#2B171D]"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-gray-700 font-semibold mb-2 text-sm">
+              <label className="block text-[#2B171D] font-bold mb-2 text-sm">
                 Last Name
               </label>
               <div className="relative">
                 <User
-                  className="absolute left-4 top-3.5 text-gray-400"
+                  className="absolute left-4 top-3.5 text-[#7C1835]"
                   size={20}
                 />
                 <input
@@ -293,37 +293,37 @@ const UserProfile = () => {
                   placeholder="Last Name"
                   value={formData.lastName}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-600 focus:border-transparent outline-none transition"
+                  className="w-full pl-12 pr-4 py-3 border border-[#F6D1DA] bg-white rounded-xl focus:ring-2 focus:ring-[#7C1835] outline-none text-[#2B171D]"
                 />
               </div>
             </div>
           </div>
 
           <div>
-            <label className="block text-gray-700 font-semibold mb-2 text-sm">
+            <label className="block text-[#2B171D] font-bold mb-2 text-sm">
               Email (Read-only)
             </label>
             <div className="relative">
               <Mail
-                className="absolute left-4 top-3.5 text-gray-400"
+                className="absolute left-4 top-3.5 text-[#6B545A]"
                 size={20}
               />
               <input
                 type="email"
                 value={user.email}
                 disabled
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl bg-gray-100 cursor-not-allowed outline-none"
+                className="w-full pl-12 pr-4 py-3 border border-[#F6D1DA] bg-[#F8F4EF] text-[#6B545A] rounded-xl cursor-not-allowed outline-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-gray-700 font-semibold mb-2 text-sm">
+            <label className="block text-[#2B171D] font-bold mb-2 text-sm">
               Bio
             </label>
             <div className="relative">
               <FileText
-                className="absolute left-4 top-3.5 text-gray-400"
+                className="absolute left-4 top-3.5 text-[#7C1835]"
                 size={20}
               />
               <textarea
@@ -332,18 +332,18 @@ const UserProfile = () => {
                 value={formData.bio}
                 onChange={handleChange}
                 rows="4"
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-600 focus:border-transparent outline-none transition resize-none"
+                className="w-full pl-12 pr-4 py-3 border border-[#F6D1DA] bg-white rounded-xl focus:ring-2 focus:ring-[#7C1835] outline-none text-[#2B171D] transition resize-none"
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-gray-700 font-semibold mb-2 text-sm">
+            <label className="block text-[#2B171D] font-bold mb-2 text-sm">
               Profile Image URL
             </label>
             <div className="relative">
               <Image
-                className="absolute left-4 top-3.5 text-gray-400"
+                className="absolute left-4 top-3.5 text-[#7C1835]"
                 size={20}
               />
               <input
@@ -352,7 +352,7 @@ const UserProfile = () => {
                 placeholder="https://example.com/image.jpg"
                 value={formData.profileImageUrl}
                 onChange={handleChange}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-600 focus:border-transparent outline-none transition"
+                className="w-full pl-12 pr-4 py-3 border border-[#F6D1DA] bg-white rounded-xl focus:ring-2 focus:ring-[#7C1835] outline-none text-[#2B171D]"
               />
             </div>
           </div>
@@ -360,7 +360,7 @@ const UserProfile = () => {
           <motion.button
             type="submit"
             disabled={isLoading}
-            className="w-full py-4 bg-gradient-to-r from-pink-600 to-purple-600 text-white text-lg font-bold rounded-xl hover:from-pink-700 hover:to-purple-700 transition shadow-lg hover:shadow-xl disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+            className="w-full py-4 btn-primary text-lg font-bold rounded-xl shadow-lg disabled:opacity-50 flex items-center justify-center space-x-2"
             whileHover={{ scale: isLoading ? 1 : 1.02 }}
             whileTap={{ scale: isLoading ? 1 : 0.98 }}
           >
@@ -371,7 +371,7 @@ const UserProfile = () => {
           {user.profileComplete && (
             <Link
               to="/onboarding?edit=true"
-              className="w-full py-4 border-2 border-pink-300 text-pink-600 text-lg font-bold rounded-xl hover:bg-pink-50 transition flex items-center justify-center space-x-2"
+              className="w-full py-4 btn-secondary text-lg font-bold rounded-xl flex items-center justify-center space-x-2 shadow-sm"
             >
               <Pencil size={20} />
               <span>Edit Matching Profile</span>
@@ -380,30 +380,30 @@ const UserProfile = () => {
         </motion.form>
 
         {/* Subscription Management */}
-        <div className="mt-10 pt-8 border-t border-pink-100">
-          <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2 mb-4">
-            <Crown className="text-pink-500" size={22} />
+        <div className="mt-10 pt-8 border-t border-[#F6D1DA]">
+          <h3 className="text-xl font-bold text-[#2B171D] flex items-center gap-2 mb-4">
+            <Crown className="text-[#C88B7B]" size={22} />
             Subscription
           </h3>
 
           {subscriptionLoading ? (
             <div className="flex items-center justify-center py-8">
-              <Loader2 className="w-6 h-6 text-pink-600 animate-spin" />
+              <Loader2 className="w-6 h-6 text-[#7C1835] animate-spin" />
             </div>
           ) : subscription?.tier && subscription.tier !== "FREE" ? (
-            <div className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl p-6">
+            <div className="bg-[#F8F4EF] rounded-2xl p-6 border border-[#F6D1DA]">
               <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                 <div>
-                  <p className="text-lg font-bold text-gray-900">
+                  <p className="text-lg font-bold text-[#2B171D]">
                     {subscription.planDetails?.name ?? subscription.plan} Plan
                   </p>
-                  <p className="text-sm text-gray-600 capitalize">
+                  <p className="text-sm text-[#6B545A] capitalize font-medium">
                     Status: {subscription.status?.toLowerCase()}
                     {subscription.paymentProvider &&
                       ` · via ${subscription.paymentProvider.toLowerCase()}`}
                   </p>
                   {subscription.endDate && (
-                    <p className="text-sm text-gray-500 mt-1">
+                    <p className="text-sm text-[#6B545A] mt-1 font-medium">
                       {subscription.status === "CANCELLED"
                         ? "Access until"
                         : "Renews"}{" "}
@@ -415,7 +415,7 @@ const UserProfile = () => {
                   <button
                     onClick={handleCancelSubscription}
                     disabled={cancelling}
-                    className="px-5 py-2.5 border-2 border-red-200 text-red-600 rounded-xl font-semibold hover:bg-red-50 transition disabled:opacity-50"
+                    className="px-5 py-2.5 border border-[#A31D36] text-[#A31D36] rounded-xl font-bold hover:bg-[#A31D36]/10 transition disabled:opacity-50"
                   >
                     {cancelling ? "Cancelling..." : "Cancel Subscription"}
                   </button>
@@ -431,13 +431,13 @@ const UserProfile = () => {
               </div>
             </div>
           ) : (
-            <div className="text-center py-6 bg-gray-50 rounded-2xl">
-              <p className="text-gray-600 text-sm mb-3">
+            <div className="text-center py-6 bg-[#F8F4EF] rounded-2xl border border-[#F6D1DA]">
+              <p className="text-[#6B545A] text-sm mb-4 font-medium">
                 You are on the free plan. Upgrade to unlock premium features.
               </p>
               <Link
                 to="/pricing"
-                className="inline-block px-6 py-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-xl text-sm font-semibold"
+                className="inline-block px-7 py-3 btn-premium rounded-xl text-sm font-bold shadow-md"
               >
                 View Plans
               </Link>
@@ -446,16 +446,16 @@ const UserProfile = () => {
         </div>
 
         {/* Top Matches Widget */}
-        <div className="mt-10 pt-8 border-t border-pink-100">
+        <div className="mt-10 pt-8 border-t border-[#F6D1DA]">
           <div className="flex items-center justify-between mb-4">
-            <h3 className="text-xl font-bold text-gray-800 flex items-center gap-2">
-              <Heart className="text-pink-500" size={22} />
+            <h3 className="text-xl font-bold text-[#2B171D] flex items-center gap-2">
+              <Heart className="text-[#7C1835]" size={22} />
               Your Top Matches
             </h3>
             {user.profileComplete && (
               <Link
                 to="/matches"
-                className="text-sm text-pink-600 font-semibold hover:text-pink-700"
+                className="text-sm text-[#7C1835] font-bold hover:text-[#5A0F24]"
               >
                 See all
               </Link>
@@ -463,13 +463,13 @@ const UserProfile = () => {
           </div>
 
           {!profileComplete ? (
-            <div className="text-center py-6 bg-pink-50 rounded-2xl">
-              <p className="text-gray-600 text-sm mb-3">
+            <div className="text-center py-6 bg-[#F8F4EF] border border-[#F6D1DA] rounded-2xl">
+              <p className="text-[#6B545A] text-sm mb-3 font-medium">
                 Complete your matching profile to see top matches.
               </p>
               <Link
                 to="/onboarding"
-                className="inline-block px-6 py-2 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-xl text-sm font-semibold"
+                className="inline-block px-6 py-2.5 btn-primary text-white rounded-xl text-sm font-bold shadow-md"
               >
                 Complete profile
               </Link>

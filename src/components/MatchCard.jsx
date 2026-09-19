@@ -37,13 +37,13 @@ const ScoreTooltip = () => {
       <button
         type="button"
         onClick={() => setShow(!show)}
-        className="text-xs text-purple-500 hover:text-purple-700 flex items-center gap-1 ml-1"
+        className="text-xs text-[#7C1835] hover:text-[#5A0F24] font-semibold flex items-center gap-1 ml-1"
       >
         <HelpCircle size={14} />
         what&apos;s this?
       </button>
       {show && (
-        <div className="absolute top-6 left-0 z-20 w-64 p-3 bg-gray-900 text-white text-xs rounded-xl shadow-lg">
+        <div className="absolute top-6 left-0 z-20 w-64 p-3 bg-[#2B171D] text-[#F8F4EF] text-xs rounded-xl shadow-xl border border-[#7C1835]">
           Compatibility is calculated from religion (20%), ethnicity (10%),
           education (10%), lifestyle habits (25%), language (10%), and distance
           from you (25%). Closer matches in Calgary score higher.
@@ -81,7 +81,7 @@ const MatchCard = ({
     return (
       <motion.div
         onClick={handleCardClick}
-        className="bg-white rounded-2xl shadow-lg overflow-hidden cursor-pointer hover:-translate-y-1 transition min-w-[160px] flex-1"
+        className="bg-[#FAF0F3] rounded-2xl shadow-md border border-[#F6D1DA] overflow-hidden cursor-pointer hover:-translate-y-1 transition min-w-[160px] flex-1 text-[#2B171D]"
         whileHover={{ scale: 1.03 }}
       >
         <div className="relative">
@@ -94,19 +94,19 @@ const MatchCard = ({
               e.target.src = "https://via.placeholder.com/200x200?text=Profile";
             }}
           />
-          <span className="absolute top-2 right-2 bg-pink-600 text-white text-xs font-bold px-2 py-1 rounded-full">
+          <span className="absolute top-2 right-2 bg-[#7C1835] text-white text-xs font-bold px-2 py-1 rounded-full shadow">
             {score != null ? `${score}%` : "Match"}
           </span>
           {isMutualMatch && (
-            <span className="absolute top-2 left-2 bg-green-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+            <span className="absolute top-2 left-2 bg-[#A31D36] text-white text-xs font-bold px-2 py-1 rounded-full shadow">
               Matched
             </span>
           )}
         </div>
         <div className="p-3 text-center">
-          <p className="font-bold text-sm truncate">{user?.name}</p>
+          <p className="font-bold text-sm truncate text-[#2B171D]">{user?.name}</p>
           {user?.age && (
-            <p className="text-gray-500 text-xs">{user.age} yrs</p>
+            <p className="text-[#6B545A] text-xs font-medium">{user.age} yrs</p>
           )}
         </div>
       </motion.div>
@@ -115,7 +115,7 @@ const MatchCard = ({
 
   return (
     <motion.div
-      className="bg-white rounded-3xl shadow-lg overflow-hidden hover:-translate-y-1 transition"
+      className="bg-[#FAF0F3] rounded-3xl shadow-lg border border-[#F6D1DA] overflow-hidden hover:-translate-y-1 transition text-[#2B171D]"
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       whileHover={{ scale: 1.02, y: -5 }}
@@ -131,38 +131,38 @@ const MatchCard = ({
             e.target.src = "https://via.placeholder.com/400x400?text=Profile";
           }}
         />
-        <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 flex items-center gap-1">
-          <span className="text-pink-600 font-bold text-sm">Score: {score}%</span>
+        <div className="absolute top-4 right-4 bg-[#F8F4EF]/95 backdrop-blur-sm rounded-full px-3.5 py-1.5 flex items-center gap-1 border border-[#F6D1DA] shadow">
+          <span className="text-[#7C1835] font-extrabold text-sm">Score: {score}%</span>
           <ScoreTooltip />
         </div>
       </div>
 
       <div className="p-6">
-        <h2 className="text-2xl font-bold">
+        <h2 className="text-2xl font-extrabold text-[#2B171D]">
           {user?.name}
           {user?.age ? `, ${user.age}` : ""}
         </h2>
         {user?.city && (
-          <p className="text-gray-500 text-sm mt-1 flex items-center gap-1">
-            <MapPin size={14} />
+          <p className="text-[#6B545A] text-sm mt-1 flex items-center gap-1 font-medium">
+            <MapPin size={14} className="text-[#7C1835]" />
             {user.city}
             {distanceKm != null && ` · ${distanceKm} km away`}
           </p>
         )}
 
         {sharedAttributes.length > 0 && (
-          <div className="mt-4 space-y-2">
-            <p className="text-sm font-semibold text-gray-700">Shared attributes</p>
+          <div className="mt-4 space-y-2 bg-[#F8F4EF] p-3 rounded-2xl border border-[#F6D1DA]">
+            <p className="text-xs font-bold text-[#7C1835] uppercase tracking-wider">Shared attributes</p>
             {sharedAttributes.map((attr, i) => {
               const Icon = ICON_MAP[attr.icon] || Heart;
               return (
                 <div
                   key={i}
-                  className="flex items-center gap-2 text-sm text-gray-600"
+                  className="flex items-center gap-2 text-sm text-[#2B171D]"
                 >
-                  <Icon size={16} className="text-pink-500 shrink-0" />
-                  <span className="font-medium text-gray-700">{attr.label}:</span>
-                  <span>{attr.value}</span>
+                  <Icon size={16} className="text-[#A31D36] shrink-0" />
+                  <span className="font-semibold text-[#2B171D]">{attr.label}:</span>
+                  <span className="text-[#6B545A]">{attr.value}</span>
                 </div>
               );
             })}
@@ -173,26 +173,26 @@ const MatchCard = ({
           {onSkip && (
             <motion.button
               onClick={() => onSkip(user?.userId)}
-              className="flex-1 py-3 rounded-xl border flex justify-center items-center gap-2 hover:bg-gray-100"
+              className="flex-1 py-3 rounded-xl btn-secondary font-bold flex justify-center items-center gap-2"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <X /> Skip
+              <X size={18} /> Skip
             </motion.button>
           )}
           {onLike && (
             <motion.button
               onClick={() => onLike(user)}
-              className={`flex-1 py-3 rounded-xl flex justify-center items-center gap-2 font-semibold transition ${
+              className={`flex-1 py-3 rounded-xl flex justify-center items-center gap-2 font-bold transition shadow-md ${
                 isLiked
-                  ? "bg-red-100 text-red-600 hover:bg-red-200"
-                  : "bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:from-pink-700 hover:to-purple-700"
+                  ? "bg-[#F6D1DA] text-[#7C1835]"
+                  : "btn-primary"
               }`}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
               <Heart
-                className={isLiked ? "fill-red-500 text-red-500" : ""}
+                className={isLiked ? "fill-[#7C1835] text-[#7C1835]" : "fill-white text-white"}
                 size={18}
               />
               {isLiked ? "Liked" : "Like"}

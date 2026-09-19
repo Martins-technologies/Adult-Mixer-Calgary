@@ -8,33 +8,33 @@ const PaymentCancel = () => {
   const provider = searchParams.get("provider");
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 pt-28 pb-16 px-4">
+    <div className="min-h-screen bg-[#F8F4EF] pt-28 pb-16 px-4 text-[#2B171D] flex items-center justify-center">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="max-w-lg mx-auto bg-white rounded-3xl shadow-2xl p-10 text-center"
+        className="max-w-lg w-full mx-auto bg-[#FAF0F3] rounded-3xl shadow-xl border border-[#F6D1DA] p-10 text-center"
       >
-        <XCircle className="w-16 h-16 text-gray-400 mx-auto mb-6" />
-        <h1 className="text-2xl font-bold text-gray-900 mb-3">
+        <XCircle className="w-16 h-16 text-[#7C1835] mx-auto mb-6" />
+        <h1 className="text-3xl font-extrabold text-[#7C1835] mb-3">
           Checkout Cancelled
         </h1>
-        <p className="text-gray-600 mb-2">
+        <p className="text-[#2B171D] font-semibold mb-2">
           Your payment was not completed{provider ? ` via ${provider}` : ""}.
         </p>
-        <p className="text-gray-500 text-sm mb-8">
+        <p className="text-[#6B545A] text-sm font-medium mb-8">
           No charges were made. You can try again whenever you are ready.
         </p>
         <div className="flex flex-col sm:flex-row gap-3 justify-center">
           <Link
             to="/pricing"
-            className="inline-flex items-center justify-center gap-2 px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-xl font-semibold hover:from-pink-700 hover:to-purple-700 transition"
+            className="inline-flex items-center justify-center gap-2 px-6 py-3.5 btn-primary text-white rounded-xl font-bold shadow-md cursor-pointer"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Pricing
           </Link>
           <Link
             to="/explore"
-            className="px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-gray-300 transition"
+            className="px-6 py-3.5 btn-secondary rounded-xl font-bold shadow-sm cursor-pointer"
           >
             Continue Browsing
           </Link>

@@ -200,26 +200,26 @@ const Explore = () => {
   if (isAdult === false) {
     return (
       <motion.div
-        className="fixed inset-0 bg-black/70 flex items-center justify-center z-50"
+        className="fixed inset-0 bg-[#2B171D]/80 flex items-center justify-center z-50 p-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
       >
-        <motion.div className="bg-white rounded-3xl p-10 max-w-md text-center shadow-2xl">
-          <h2 className="text-3xl font-bold text-pink-600">18+ Age Verification</h2>
-          <p className="text-gray-600 mt-4">
+        <motion.div className="bg-[#FAF0F3] border border-[#F6D1DA] rounded-3xl p-10 max-w-md text-center shadow-2xl text-[#2B171D]">
+          <h2 className="text-3xl font-extrabold text-[#7C1835]">18+ Age Verification</h2>
+          <p className="text-[#6B545A] mt-4 font-medium">
             This website contains adult content. You must be at least 18 years old
             to continue.
           </p>
           <div className="mt-8 flex gap-4">
             <button
               onClick={handleAgeNo}
-              className="flex-1 py-3 rounded-xl border hover:bg-gray-100"
+              className="flex-1 py-3 rounded-xl btn-secondary font-bold"
             >
               No
             </button>
             <button
               onClick={handleAgeYes}
-              className="flex-1 py-3 rounded-xl bg-pink-600 text-white hover:bg-pink-700"
+              className="flex-1 py-3 rounded-xl btn-primary font-bold"
             >
               Yes, I&apos;m 18+
             </button>
@@ -231,36 +231,29 @@ const Explore = () => {
 
   if (loading || authLoading) {
     return (
-      <div className="min-h-screen pt-24 px-4 pb-10 relative overflow-hidden">
-        <div className="fixed inset-0 -z-10 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50" />
+      <div className="min-h-screen pt-24 px-4 pb-10 relative overflow-hidden bg-[#F8F4EF]">
         <div className="flex items-center justify-center min-h-[60vh]">
-          <p className="text-gray-600 text-lg">Loading profiles...</p>
+          <p className="text-[#6B545A] text-lg font-semibold">Loading profiles...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pt-24 px-4 pb-10 relative overflow-hidden">
-      <div className="fixed inset-0 -z-10 bg-gradient-to-br from-pink-50 via-purple-50 to-blue-50">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-pink-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob" />
-        <div className="absolute top-40 right-10 w-72 h-72 bg-purple-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000" />
-        <div className="absolute -bottom-8 left-1/2 w-72 h-72 bg-blue-300 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000" />
-      </div>
-
+    <div className="min-h-screen pt-24 px-4 pb-10 relative overflow-hidden bg-[#F8F4EF] text-[#2B171D]">
       <motion.div
         className="text-center mb-14"
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="inline-flex items-center gap-2 mb-4">
-          <Heart className="text-pink-500 fill-pink-500" size={32} />
-          <h1 className="text-5xl md:text-6xl font-extrabold bg-gradient-to-r from-pink-600 via-purple-600 to-blue-600 bg-clip-text text-transparent">
+          <Heart className="text-[#A31D36] fill-[#A31D36]" size={32} />
+          <h1 className="text-5xl md:text-6xl font-extrabold text-[#7C1835]">
             Explore Matches
           </h1>
-          <Heart className="text-pink-500 fill-pink-500" size={32} />
+          <Heart className="text-[#A31D36] fill-[#A31D36]" size={32} />
         </div>
-        <p className="text-gray-600 text-lg">
+        <p className="text-[#6B545A] text-lg font-medium">
           Discover real adults nearby. Filter by preference and connect with
           confidence.
         </p>
@@ -275,10 +268,10 @@ const Explore = () => {
           <button
             key={type}
             onClick={() => setFilter(type)}
-            className={`px-6 py-3 rounded-full font-semibold transition ${
+            className={`px-6 py-3 rounded-full font-bold transition shadow-sm ${
               filter === type
-                ? "bg-pink-600 text-white"
-                : "bg-white border hover:bg-gray-100"
+                ? "btn-primary"
+                : "bg-[#FAF0F3] text-[#2B171D] border border-[#F6D1DA] hover:bg-[#F6D1DA]"
             }`}
           >
             {type === "everyone" && "Everyone"}
@@ -313,7 +306,7 @@ const Explore = () => {
                 return (
                   <motion.div
                     key={profile.id}
-                    className="bg-white rounded-3xl shadow-lg overflow-hidden hover:-translate-y-1 transition"
+                    className="bg-[#FAF0F3] rounded-3xl shadow-lg border border-[#F6D1DA] overflow-hidden hover:-translate-y-1 transition text-[#2B171D]"
                     initial={{ opacity: 0, y: 30 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, scale: 0.8 }}
@@ -333,20 +326,20 @@ const Explore = () => {
                       }}
                     />
                     <div className="p-6">
-                      <h2 className="text-2xl font-bold">
+                      <h2 className="text-2xl font-extrabold text-[#2B171D]">
                         {displayName}
                         {age ? `, ${age}` : ""}
                       </h2>
-                      <p className="text-gray-600 mt-2">
+                      <p className="text-[#6B545A] mt-2 text-sm font-medium line-clamp-2">
                         {profile.bio || "No bio available"}
                       </p>
-                      <p className="text-sm text-pink-600 mt-3 font-semibold flex items-center gap-1">
+                      <p className="text-sm text-[#7C1835] mt-3 font-bold flex items-center gap-1">
                         <Heart
                           size={16}
                           className={
                             likeCount > 0
-                              ? "fill-pink-500 text-pink-500"
-                              : "text-pink-400"
+                              ? "fill-[#A31D36] text-[#A31D36]"
+                              : "text-[#7C1835]"
                           }
                         />
                         {likeCount} {likeCount === 1 ? "like" : "likes"}
@@ -354,25 +347,25 @@ const Explore = () => {
                       <div className="mt-6 flex gap-4">
                         <motion.button
                           onClick={() => handleSkip(profile.id)}
-                          className="flex-1 py-3 rounded-xl border flex justify-center items-center gap-2 hover:bg-gray-100"
+                          className="flex-1 py-3 rounded-xl btn-secondary font-bold flex justify-center items-center gap-2"
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
-                          <X /> Skip
+                          <X size={18} /> Skip
                         </motion.button>
                         <motion.button
                           onClick={() => handleLikeToggle(profile)}
-                          className={`flex-1 py-3 rounded-xl flex justify-center items-center gap-2 font-semibold transition ${
+                          className={`flex-1 py-3 rounded-xl flex justify-center items-center gap-2 font-bold transition shadow-md ${
                             isLikedProfile
-                              ? "bg-red-100 text-red-600 hover:bg-red-200"
-                              : "bg-gradient-to-r from-pink-600 to-purple-600 text-white hover:from-pink-700 hover:to-purple-700"
+                              ? "bg-[#F6D1DA] text-[#7C1835]"
+                              : "btn-primary"
                           }`}
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
                         >
                           <Heart
                             className={
-                              isLikedProfile ? "fill-red-500 text-red-500" : ""
+                              isLikedProfile ? "fill-[#7C1835] text-[#7C1835]" : "fill-white text-white"
                             }
                             size={18}
                           />
@@ -386,33 +379,22 @@ const Explore = () => {
             </AnimatePresence>
           </motion.div>
           {hasMore && (
-            <div ref={loaderRef} className="text-center py-8 text-gray-500">
+            <div ref={loaderRef} className="text-center py-8 text-[#6B545A] font-semibold">
               {loadingMore ? "Loading more..." : ""}
             </div>
           )}
         </>
       ) : (
         <motion.div
-          className="text-center mt-20 text-gray-500"
+          className="text-center mt-20 text-[#6B545A]"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <Users size={48} className="mx-auto mb-4" />
-          <h2 className="text-2xl font-bold">No profiles available</h2>
-          <p>Try changing filters or come back later.</p>
+          <Users size={48} className="mx-auto mb-4 text-[#7C1835]" />
+          <h2 className="text-2xl font-bold text-[#2B171D]">No profiles available</h2>
+          <p className="mt-1 font-medium">Try changing filters or come back later.</p>
         </motion.div>
       )}
-
-      <style>{`
-        @keyframes blob {
-          0%, 100% { transform: translate(0, 0) scale(1); }
-          33% { transform: translate(30px, -50px) scale(1.1); }
-          66% { transform: translate(-20px, 20px) scale(0.9); }
-        }
-        .animate-blob { animation: blob 7s infinite; }
-        .animation-delay-2000 { animation-delay: 2s; }
-        .animation-delay-4000 { animation-delay: 4s; }
-      `}</style>
     </div>
   );
 };

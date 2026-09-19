@@ -90,19 +90,19 @@ const Checkout = () => {
 
   if (authLoading || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-white to-slate-100 pt-24">
-        <Loader2 className="w-10 h-10 text-pink-600 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#F8F4EF] pt-24">
+        <Loader2 className="w-10 h-10 text-[#7C1835] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 pt-28 pb-16 px-4">
+    <div className="min-h-screen bg-[#F8F4EF] pt-28 pb-16 px-4 text-[#2B171D]">
       <Toaster />
       <div className="max-w-2xl mx-auto">
         <Link
           to="/pricing"
-          className="inline-flex items-center gap-2 text-gray-600 hover:text-pink-600 mb-8 transition"
+          className="inline-flex items-center gap-2 text-[#7C1835] hover:text-[#5A0F24] font-bold mb-8 transition"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Pricing
@@ -111,33 +111,33 @@ const Checkout = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-3xl shadow-2xl overflow-hidden"
+          className="bg-[#FAF0F3] rounded-3xl shadow-xl border border-[#F6D1DA] overflow-hidden"
         >
-          <div className="bg-gradient-to-r from-pink-600 to-purple-600 p-8 text-white">
+          <div className="gradient-brand p-8 text-white">
             <div className="flex items-center gap-3 mb-2">
-              <Crown className="w-6 h-6" />
-              <h1 className="text-2xl font-bold">Complete Your Subscription</h1>
+              <Crown className="w-6 h-6 text-[#C88B7B]" />
+              <h1 className="text-2xl font-extrabold text-white">Complete Your Subscription</h1>
             </div>
-            <p className="text-pink-100">
+            <p className="text-[#F8F4EF]/90 font-medium text-sm">
               Welcome, {user?.firstName}! You will pay securely via Stripe
               Checkout.
             </p>
           </div>
 
           <div className="p-8">
-            <div className="bg-gradient-to-br from-pink-50 to-purple-50 rounded-2xl p-6 mb-8">
+            <div className="bg-[#F8F4EF] rounded-2xl border border-[#F6D1DA] p-6 mb-8">
               <div className="flex justify-between items-start mb-4">
                 <div>
-                  <h2 className="text-2xl font-bold text-gray-900">
+                  <h2 className="text-2xl font-extrabold text-[#2B171D]">
                     {plan?.name} Plan
                   </h2>
-                  <p className="text-gray-600 text-sm">{plan?.tagline}</p>
+                  <p className="text-[#6B545A] text-sm font-medium">{plan?.tagline}</p>
                 </div>
                 <div className="text-right">
-                  <p className="text-3xl font-bold text-pink-600">
+                  <p className="text-3xl font-extrabold text-[#7C1835]">
                     ${price?.toFixed(2)}
                   </p>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-[#6B545A] font-medium">
                     {billingCycle === "MONTHLY" ? "per month" : "per year"}
                   </p>
                 </div>
@@ -147,40 +147,40 @@ const Checkout = () => {
                 {plan?.features?.map((feature, idx) => (
                   <li
                     key={idx}
-                    className="flex items-center gap-2 text-sm text-gray-700"
+                    className="flex items-center gap-2 text-sm text-[#2B171D] font-medium"
                   >
-                    <Check className="w-4 h-4 text-green-500 flex-shrink-0" />
+                    <Check className="w-4 h-4 text-[#7C1835] flex-shrink-0" />
                     {feature}
                   </li>
                 ))}
               </ul>
             </div>
 
-            <div className="border border-gray-200 rounded-2xl p-6 mb-8">
+            <div className="bg-white border border-[#F6D1DA] rounded-2xl p-6 mb-8">
               <div className="flex items-center gap-3 mb-4">
-                <CreditCard className="w-5 h-5 text-gray-600" />
-                <h3 className="font-semibold text-gray-900">Payment Summary</h3>
+                <CreditCard className="w-5 h-5 text-[#7C1835]" />
+                <h3 className="font-extrabold text-[#2B171D]">Payment Summary</h3>
               </div>
               <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-600">
+                <div className="flex justify-between text-[#2B171D]">
+                  <span className="text-[#6B545A] font-medium">
                     {plan?.name} (
                     {billingCycle === "MONTHLY" ? "Monthly" : "Yearly"})
                   </span>
-                  <span className="font-medium">${price?.toFixed(2)}</span>
+                  <span className="font-bold">${price?.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between border-t pt-2 font-bold text-gray-900">
+                <div className="flex justify-between border-t border-[#F6D1DA] pt-2 font-extrabold text-[#2B171D]">
                   <span>Total due today</span>
-                  <span>${price?.toFixed(2)}</span>
+                  <span className="text-[#7C1835]">${price?.toFixed(2)}</span>
                 </div>
               </div>
-              <p className="text-xs text-gray-500 mt-3">
+              <p className="text-xs text-[#6B545A] mt-3 font-medium">
                 Powered by Stripe · Card details never touch our servers
               </p>
             </div>
 
-            <div className="flex items-center gap-2 text-sm text-gray-500 mb-6">
-              <Shield className="w-4 h-4 text-green-500" />
+            <div className="flex items-center gap-2 text-sm text-[#6B545A] mb-6 font-semibold">
+              <Shield className="w-4 h-4 text-[#7C1835]" />
               <span>Secure checkout · 30-day money-back guarantee</span>
             </div>
 
@@ -189,7 +189,7 @@ const Checkout = () => {
               disabled={submitting}
               whileHover={{ scale: submitting ? 1 : 1.02 }}
               whileTap={{ scale: submitting ? 1 : 0.98 }}
-              className="w-full py-4 bg-gradient-to-r from-pink-600 to-purple-600 text-white text-lg font-bold rounded-xl hover:from-pink-700 hover:to-purple-700 transition shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+              className="w-full py-4 btn-primary text-white text-lg font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
             >
               {submitting ? (
                 <>
@@ -198,13 +198,13 @@ const Checkout = () => {
                 </>
               ) : (
                 <>
-                  <Heart className="w-5 h-5" />
+                  <Heart className="w-5 h-5 fill-white" />
                   Pay with Stripe
                 </>
               )}
             </motion.button>
 
-            <p className="text-xs text-gray-400 text-center mt-4">
+            <p className="text-xs text-[#6B545A] text-center mt-4 font-medium">
               By subscribing, you agree to our Terms of Service. Your
               subscription is confirmed only after Stripe verifies payment via
               webhook.

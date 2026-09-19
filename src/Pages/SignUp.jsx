@@ -1,6 +1,6 @@
-import React, { useState } from "react";
-import { motion } from "framer-motion";
-import { Eye, EyeOff, User, Mail, Calendar, Lock, Heart } from "lucide-react";
+import React, { useState, useRef, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Eye, EyeOff, User, Mail, Calendar, Lock, Heart, ChevronDown, Check, ShieldCheck } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import toast, { Toaster } from "react-hot-toast";
 import api from "../services/api";
@@ -17,8 +17,22 @@ const SignUp = () => {
     gender: "",
   });
 
+  const [genderDropdownOpen, setGenderDropdownOpen] = useState(false);
+  const genderDropdownRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (genderDropdownRef.current && !genderDropdownRef.current.contains(event.target)) {
+        setGenderDropdownOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const [passwordStrength, setPasswordStrength] = useState({
     hasMinLength: false,
     hasUpperCase: false,
@@ -33,18 +47,30 @@ const SignUp = () => {
       hasUpperCase: /[A-Z]/.test(password),
       hasLowerCase: /[a-z]/.test(password),
       hasNumber: /[0-9]/.test(password),
-      hasSpecialChar: /[^A-Za-z0-9]/.test(password),
+      hasSpecialChar: /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password),
     });
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    setFormData({
+      ...formData,
+      [name]: value,
+    });
 
-    // Validate password on change
     if (name === "password") {
       validatePassword(value);
     }
+  };
+
+  const isPasswordValid = () => {
+    return (
+      passwordStrength.hasMinLength &&
+      passwordStrength.hasUpperCase &&
+      passwordStrength.hasLowerCase &&
+      passwordStrength.hasNumber &&
+      passwordStrength.hasSpecialChar
+    );
   };
 
   const handleSubmit = async (e) => {
@@ -58,187 +84,142 @@ const SignUp = () => {
       !formData.gender
     ) {
       setError("All fields are required");
-      toast.error("All fields are required", {
-        duration: 3000,
-        position: "top-center",
-        style: {
-          background: "#FEE2E2",
-          color: "#DC2626",
-          fontWeight: "600",
-          borderRadius: "12px",
-          padding: "16px",
-        },
-      });
+      toast.error("Please fill in all fields");
       return;
     }
 
-    // Check password strength
-    const isPasswordStrong = Object.values(passwordStrength).every(
-      (val) => val === true,
-    );
-    if (!isPasswordStrong) {
-      setError("Password does not meet all requirements");
-      toast.error("Password does not meet all requirements", {
-        duration: 3000,
-        position: "top-center",
-        style: {
-          background: "#FEE2E2",
-          color: "#DC2626",
-          fontWeight: "600",
-          borderRadius: "12px",
-          padding: "16px",
-        },
-      });
+    if (parseInt(formData.age, 10) < 18) {
+      setError("You must be at least 18 years old");
+      toast.error("Age must be 18 or older");
       return;
     }
 
-    if (Number(formData.age) < 18) {
-      setError("You must be 18+ to sign up");
-      toast.error("You must be 18+ to sign up", {
-        duration: 3000,
-        position: "top-center",
-        style: {
-          background: "#FEE2E2",
-          color: "#DC2626",
-          fontWeight: "600",
-          borderRadius: "12px",
-          padding: "16px",
-        },
-      });
+    if (!isPasswordValid()) {
+      setError("Please satisfy all password requirements");
+      toast.error("Password does not meet security requirements");
       return;
     }
-
-    setError("");
 
     try {
-      // Split full name into firstName and lastName
-      const nameParts = formData.name.trim().split(" ");
-      const firstName = nameParts[0];
-      const lastName = nameParts.slice(1).join(" ") || ""; // Join remaining parts as lastName
-
-      const currentYear = new Date().getFullYear();
-      const birthYear = currentYear - Number(formData.age);
-      const birthDate = `${birthYear}-01-01`;
+      setIsLoading(true);
+      setError("");
 
       const response = await api.post("/auth/register", {
-        firstName,
-        lastName: lastName || undefined, // Send undefined if empty
+        firstName: formData.name,
+        lastName: "",
         email: formData.email,
         password: formData.password,
-        birthDate,
+        age: parseInt(formData.age, 10),
         gender: formData.gender,
       });
 
-      // Use AuthContext login to update state immediately
-      login(response.data.user, response.data.token);
+      const { user, token } = response.data;
 
-      toast.success("Welcome to Adultmixer! Let's find your match 💕", {
-        duration: 2000,
-        position: "top-center",
-        icon: "🎉",
-        style: {
-          background: "#DCFCE7",
-          color: "#16A34A",
-          fontWeight: "600",
-          borderRadius: "12px",
-          padding: "16px",
-        },
-      });
+      if (!user || !token) {
+        throw new Error("Registration failed");
+      }
 
-      setTimeout(() => {
-        navigate("/onboarding");
-      }, 2000);
-    } catch (error) {
-      const errorMessage =
-        error.response?.data?.message ||
-        "Registration failed. Please try again.";
-      setError(errorMessage);
-      toast.error(errorMessage, {
-        duration: 3000,
-        position: "top-center",
-        style: {
-          background: "#FEE2E2",
-          color: "#DC2626",
-          fontWeight: "600",
-          borderRadius: "12px",
-          padding: "16px",
-        },
-      });
+      login(user, token);
+
+      toast.success("Account created successfully!");
+      navigate("/onboarding");
+    } catch (err) {
+      console.error("Registration error:", err);
+
+      const message =
+        err.response?.data?.message ||
+        "Registration failed. Email may already be in use.";
+
+      setError(message);
+      toast.error(message);
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-pink-100 via-purple-50 to-pink-50 px-4 py-20">
+    <div
+      className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-cover bg-center py-28 px-4 text-[#2B171D]"
+      style={{ backgroundImage: "url('/signup_bg.jpg')" }}
+    >
+      {/* Ambient Dark Overlay */}
+      <div className="absolute inset-0 bg-gradient-to-b from-[#2B171D]/80 via-[#2B171D]/65 to-[#2B171D]/85 backdrop-blur-[3px] pointer-events-none"></div>
+
       <Toaster />
 
+      {/* Main Glass Card */}
       <motion.div
-        className="w-full max-w-lg bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-10 border border-pink-100"
-        initial={{ opacity: 0, y: 40 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, type: "spring" }}
+        className="relative z-10 w-full max-w-lg bg-[#FAF0F3]/95 backdrop-blur-xl rounded-3xl shadow-2xl p-8 md:p-12 border border-[#F6D1DA] transition-all"
+        initial={{ opacity: 0, y: 30, scale: 0.96 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 0.7, ease: "easeOut" }}
       >
+        {/* Header */}
         <motion.div
           className="text-center mb-8"
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.2, duration: 0.5 }}
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1, duration: 0.5 }}
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mb-4">
-            <Heart className="text-white" size={32} fill="white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-tr from-[#7C1835] to-[#A31D36] rounded-2xl mb-4 shadow-lg shadow-[#7C1835]/30 text-white">
+            <Heart size={30} fill="white" />
           </div>
-          <h2 className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-2">
-            Join Adultmixer
+
+          <h2 className="text-3xl md:text-4xl font-extrabold text-[#7C1835] mb-2 tracking-tight">
+            Create Your Account
           </h2>
-          <p className="text-gray-600 text-sm">
-            Find your perfect match in Calgary ❤️
+
+          <p className="text-[#6B545A] text-sm md:text-base font-medium">
+            Join Calgary's premier adult mixer community in seconds
           </p>
         </motion.div>
 
         {error && (
           <motion.div
-            className="bg-red-50 border border-red-200 text-red-700 text-sm p-4 rounded-xl mb-6 text-center flex items-center justify-center gap-2"
-            initial={{ opacity: 0, scale: 0.9 }}
+            className="bg-[#A31D36]/10 border border-[#A31D36]/30 text-[#A31D36] text-sm p-4 rounded-2xl mb-6 text-center font-semibold"
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <span>⚠️</span>
-            <span>{error}</span>
+            {error}
           </motion.div>
         )}
 
         <motion.form
           onSubmit={handleSubmit}
-          className="space-y-5"
+          className="space-y-4 md:space-y-5"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.4 }}
+          transition={{ delay: 0.2 }}
         >
+          {/* Full Name */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-2 text-sm">
+            <label className="block text-[#2B171D] font-bold mb-2 text-sm">
               Full Name
             </label>
             <div className="relative">
               <User
-                className="absolute left-4 top-3.5 text-gray-400"
+                className="absolute left-4 top-3.5 text-[#7C1835]"
                 size={20}
               />
               <input
                 type="text"
                 name="name"
-                placeholder="Enter your full name"
+                placeholder="John Doe"
                 value={formData.name}
                 onChange={handleChange}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition"
+                className="w-full pl-12 pr-4 py-3.5 border border-[#F6D1DA] bg-white rounded-2xl focus:ring-2 focus:ring-[#7C1835] focus:border-transparent outline-none transition text-[#2B171D] font-medium shadow-sm"
               />
             </div>
           </div>
 
+          {/* Email */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-2 text-sm">
+            <label className="block text-[#2B171D] font-bold mb-2 text-sm">
               Email Address
             </label>
             <div className="relative">
               <Mail
-                className="absolute left-4 top-3.5 text-gray-400"
+                className="absolute left-4 top-3.5 text-[#7C1835]"
                 size={20}
               />
               <input
@@ -247,62 +228,116 @@ const SignUp = () => {
                 placeholder="your.email@example.com"
                 value={formData.email}
                 onChange={handleChange}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition"
+                className="w-full pl-12 pr-4 py-3.5 border border-[#F6D1DA] bg-white rounded-2xl focus:ring-2 focus:ring-[#7C1835] focus:border-transparent outline-none transition text-[#2B171D] font-medium shadow-sm"
               />
             </div>
           </div>
 
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2 text-sm">
-              Age (18+ only)
-            </label>
-            <div className="relative">
-              <Calendar
-                className="absolute left-4 top-3.5 text-gray-400"
-                size={20}
-              />
-              <input
-                type="number"
-                name="age"
-                placeholder="Enter your age"
-                value={formData.age}
-                onChange={handleChange}
-                min="18"
-                max="99"
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition"
-              />
+          {/* Age & Gender Row */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-[#2B171D] font-bold mb-2 text-sm">
+                Age (18+)
+              </label>
+              <div className="relative">
+                <Calendar
+                  className="absolute left-4 top-3.5 text-[#7C1835]"
+                  size={20}
+                />
+                <input
+                  type="number"
+                  name="age"
+                  placeholder="25"
+                  value={formData.age}
+                  onChange={handleChange}
+                  min="18"
+                  max="99"
+                  className="w-full pl-12 pr-4 py-3.5 border border-[#F6D1DA] bg-white rounded-2xl focus:ring-2 focus:ring-[#7C1835] focus:border-transparent outline-none transition text-[#2B171D] font-medium shadow-sm"
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-[#2B171D] font-bold mb-2 text-sm">
+                Gender
+              </label>
+              <div className="relative" ref={genderDropdownRef}>
+                <User
+                  className="absolute left-4 top-3.5 text-[#7C1835] pointer-events-none z-10"
+                  size={20}
+                />
+                <button
+                  type="button"
+                  onClick={() => setGenderDropdownOpen(!genderDropdownOpen)}
+                  className={`w-full pl-12 pr-8 py-3.5 border rounded-2xl text-left flex items-center justify-between transition-all bg-white font-medium shadow-sm ${
+                    genderDropdownOpen
+                      ? "border-[#7C1835] ring-2 ring-[#7C1835]/20 shadow-md"
+                      : "border-[#F6D1DA] hover:border-[#7C1835]/50"
+                  } ${formData.gender ? "text-[#2B171D]" : "text-[#8A7178]"}`}
+                >
+                  <span className="truncate whitespace-nowrap">
+                    {formData.gender === "MALE"
+                      ? "Male"
+                      : formData.gender === "FEMALE"
+                      ? "Female"
+                      : "Select gender"}
+                  </span>
+                  <ChevronDown
+                    size={18}
+                    className={`text-[#7C1835] shrink-0 transition-transform duration-200 ${
+                      genderDropdownOpen ? "rotate-180" : ""
+                    }`}
+                  />
+                </button>
+
+                <AnimatePresence>
+                  {genderDropdownOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -4, scale: 0.98 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: -4, scale: 0.98 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute z-50 left-0 right-0 mt-1.5 bg-[#FAF0F3] border border-[#F6D1DA] rounded-2xl shadow-2xl overflow-hidden py-1.5"
+                    >
+                      {[
+                        { value: "", label: "Select gender" },
+                        { value: "MALE", label: "Male" },
+                        { value: "FEMALE", label: "Female" },
+                      ].map((opt) => {
+                        const isSelected = formData.gender === opt.value;
+                        return (
+                          <div
+                            key={opt.value}
+                            onClick={() => {
+                              handleChange({ target: { name: "gender", value: opt.value } });
+                              setGenderDropdownOpen(false);
+                            }}
+                            className={`px-4 py-2.5 cursor-pointer text-sm font-medium transition flex items-center justify-between ${
+                              isSelected
+                                ? "bg-[#7C1835] text-white font-bold"
+                                : "text-[#2B171D] hover:bg-[#7C1835] hover:text-white"
+                            }`}
+                          >
+                            <span>{opt.label}</span>
+                            {isSelected && <Check size={16} className="text-white shrink-0 ml-2" />}
+                          </div>
+                        );
+                      })}
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
             </div>
           </div>
 
+          {/* Password */}
           <div>
-            <label className="block text-gray-700 font-semibold mb-2 text-sm">
-              Gender
-            </label>
-            <div className="relative">
-              <User
-                className="absolute left-4 top-3.5 text-gray-400"
-                size={20}
-              />
-              <select
-                name="gender"
-                value={formData.gender}
-                onChange={handleChange}
-                className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition appearance-none bg-white"
-              >
-                <option value="">Select your gender</option>
-                <option value="MALE">Male</option>
-                <option value="FEMALE">Female</option>
-              </select>
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-gray-700 font-semibold mb-2 text-sm">
+            <label className="block text-[#2B171D] font-bold mb-2 text-sm">
               Password
             </label>
             <div className="relative">
               <Lock
-                className="absolute left-4 top-3.5 text-gray-400"
+                className="absolute left-4 top-3.5 text-[#7C1835]"
                 size={20}
               />
               <input
@@ -311,86 +346,67 @@ const SignUp = () => {
                 placeholder="Create a strong password"
                 value={formData.password}
                 onChange={handleChange}
-                className="w-full pl-12 pr-12 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-500 focus:border-transparent outline-none transition"
+                className="w-full pl-12 pr-12 py-3.5 border border-[#F6D1DA] bg-white rounded-2xl focus:ring-2 focus:ring-[#7C1835] focus:border-transparent outline-none transition text-[#2B171D] font-medium shadow-sm"
               />
-              <span
+              <button
+                type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-4 top-3.5 cursor-pointer text-gray-500 hover:text-pink-600 transition"
+                className="absolute right-4 top-3.5 text-[#7C1835] hover:text-[#5A0F24] transition"
               >
                 {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-              </span>
+              </button>
             </div>
 
-            {/* Password Strength Indicator */}
+            {/* Password Requirements */}
             {formData.password && (
               <motion.div
-                className="mt-3 p-3 bg-gray-50 rounded-lg space-y-2"
+                className="mt-3 p-3.5 bg-white/80 rounded-2xl space-y-1.5 border border-[#F6D1DA]"
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: "auto" }}
                 transition={{ duration: 0.3 }}
               >
-                <p className="text-xs font-semibold text-gray-700 mb-2">
-                  Password Requirements:
+                <p className="text-xs font-bold text-[#2B171D] mb-1.5">
+                  Security Check:
                 </p>
-                <div className="space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-xs ${passwordStrength.hasMinLength ? "text-green-600" : "text-gray-400"}`}
-                    >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1 text-xs">
+                  <div className="flex items-center gap-1.5">
+                    <span className={passwordStrength.hasMinLength ? "text-[#7C1835] font-bold" : "text-gray-400"}>
                       {passwordStrength.hasMinLength ? "✓" : "○"}
                     </span>
-                    <span
-                      className={`text-xs ${passwordStrength.hasMinLength ? "text-green-600" : "text-gray-600"}`}
-                    >
-                      At least 8 characters
+                    <span className={passwordStrength.hasMinLength ? "text-[#7C1835] font-semibold" : "text-[#6B545A]"}>
+                      8+ Characters
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-xs ${passwordStrength.hasUpperCase ? "text-green-600" : "text-gray-400"}`}
-                    >
+                  <div className="flex items-center gap-1.5">
+                    <span className={passwordStrength.hasUpperCase ? "text-[#7C1835] font-bold" : "text-gray-400"}>
                       {passwordStrength.hasUpperCase ? "✓" : "○"}
                     </span>
-                    <span
-                      className={`text-xs ${passwordStrength.hasUpperCase ? "text-green-600" : "text-gray-600"}`}
-                    >
-                      One uppercase letter (A-Z)
+                    <span className={passwordStrength.hasUpperCase ? "text-[#7C1835] font-semibold" : "text-[#6B545A]"}>
+                      Uppercase (A-Z)
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-xs ${passwordStrength.hasLowerCase ? "text-green-600" : "text-gray-400"}`}
-                    >
+                  <div className="flex items-center gap-1.5">
+                    <span className={passwordStrength.hasLowerCase ? "text-[#7C1835] font-bold" : "text-gray-400"}>
                       {passwordStrength.hasLowerCase ? "✓" : "○"}
                     </span>
-                    <span
-                      className={`text-xs ${passwordStrength.hasLowerCase ? "text-green-600" : "text-gray-600"}`}
-                    >
-                      One lowercase letter (a-z)
+                    <span className={passwordStrength.hasLowerCase ? "text-[#7C1835] font-semibold" : "text-[#6B545A]"}>
+                      Lowercase (a-z)
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-xs ${passwordStrength.hasNumber ? "text-green-600" : "text-gray-400"}`}
-                    >
+                  <div className="flex items-center gap-1.5">
+                    <span className={passwordStrength.hasNumber ? "text-[#7C1835] font-bold" : "text-gray-400"}>
                       {passwordStrength.hasNumber ? "✓" : "○"}
                     </span>
-                    <span
-                      className={`text-xs ${passwordStrength.hasNumber ? "text-green-600" : "text-gray-600"}`}
-                    >
-                      One number (0-9)
+                    <span className={passwordStrength.hasNumber ? "text-[#7C1835] font-semibold" : "text-[#6B545A]"}>
+                      Number (0-9)
                     </span>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`text-xs ${passwordStrength.hasSpecialChar ? "text-green-600" : "text-gray-400"}`}
-                    >
+                  <div className="flex items-center gap-1.5 col-span-1 sm:col-span-2">
+                    <span className={passwordStrength.hasSpecialChar ? "text-[#7C1835] font-bold" : "text-gray-400"}>
                       {passwordStrength.hasSpecialChar ? "✓" : "○"}
                     </span>
-                    <span
-                      className={`text-xs ${passwordStrength.hasSpecialChar ? "text-green-600" : "text-gray-600"}`}
-                    >
-                      One special character (!@#$%^&*)
+                    <span className={passwordStrength.hasSpecialChar ? "text-[#7C1835] font-semibold" : "text-[#6B545A]"}>
+                      Special Symbol (!@#$%^&*)
                     </span>
                   </div>
                 </div>
@@ -400,32 +416,28 @@ const SignUp = () => {
 
           <motion.button
             type="submit"
-            className="w-full py-4 bg-gradient-to-r from-pink-600 to-purple-600 text-white text-lg font-bold rounded-xl hover:from-pink-700 hover:to-purple-700 transition shadow-lg hover:shadow-xl"
+            disabled={isLoading}
+            className="w-full py-4 btn-primary text-lg font-bold rounded-2xl shadow-xl transition-all disabled:opacity-50 mt-2 flex items-center justify-center gap-2"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
-            Create Account
+            {isLoading ? "Creating Account..." : "Join AdultMixer Calgary"}
           </motion.button>
         </motion.form>
 
-        <motion.div
-          className="text-center mt-6"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
-        >
-          <p className="text-sm text-gray-600">
-            Already have an account?{" "}
-            <Link
-              to="/login"
-              className="text-pink-600 font-semibold hover:text-pink-700 transition"
-            >
-              Login here
-            </Link>
-          </p>
+        {/* Security badge */}
+        <div className="mt-6 pt-6 border-t border-[#F6D1DA]/60 flex items-center justify-center gap-2 text-xs text-[#6B545A] font-medium">
+          <ShieldCheck size={16} className="text-[#7C1835]" />
+          <span>Strict Discretion & Verified Authentic Profiles</span>
+        </div>
 
-          <p className="text-xs text-gray-500 mt-4">
-            By signing up, you agree to our Terms & Privacy Policy
+        {/* Footer */}
+        <motion.div className="text-center mt-6">
+          <p className="text-sm text-[#6B545A] font-medium">
+            Already have an account?{" "}
+            <Link to="/login" className="text-[#7C1835] font-extrabold hover:underline">
+              Log In
+            </Link>
           </p>
         </motion.div>
       </motion.div>

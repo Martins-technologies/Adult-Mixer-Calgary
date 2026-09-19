@@ -82,7 +82,7 @@ const PrivacyPolicy = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-24 pb-16">
+    <div className="min-h-screen bg-[#F8F4EF] pt-24 pb-16 text-[#2B171D]">
       <div className="max-w-5xl mx-auto px-6">
         {/* Header */}
         <motion.div
@@ -96,18 +96,18 @@ const PrivacyPolicy = () => {
               initial={{ scale: 0 }}
               animate={{ scale: 1 }}
               transition={{ delay: 0.2, type: "spring", stiffness: 200 }}
-              className="w-20 h-20 bg-pink-600 rounded-full flex items-center justify-center"
+              className="w-20 h-20 bg-[#7C1835] rounded-full flex items-center justify-center shadow-md"
             >
               <Shield className="w-10 h-10 text-white" />
             </motion.div>
           </div>
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-[#7C1835] mb-4">
             Privacy Policy
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-[#6B545A] max-w-2xl mx-auto font-medium">
             Your privacy is important to us. This policy explains how we collect, use, and protect your personal information.
           </p>
-          <p className="text-sm text-gray-500 mt-4">
+          <p className="text-sm text-[#6B545A]/80 mt-4 font-semibold">
             Last Updated: February 25, 2026
           </p>
         </motion.div>
@@ -124,21 +124,21 @@ const PrivacyPolicy = () => {
               key={index}
               variants={itemVariants}
               whileHover={{ scale: 1.02 }}
-              className="bg-white rounded-2xl p-8 shadow-md hover:shadow-xl transition-shadow duration-300"
+              className="bg-[#FAF0F3] rounded-2xl p-8 shadow-md border border-[#F6D1DA] hover:shadow-xl transition-shadow duration-300 text-[#2B171D]"
             >
               <div className="flex items-start gap-4">
                 <motion.div
                   whileHover={{ rotate: 360 }}
                   transition={{ duration: 0.6 }}
-                  className="flex-shrink-0 w-12 h-12 bg-pink-100 rounded-xl flex items-center justify-center"
+                  className="flex-shrink-0 w-12 h-12 bg-[#F8F4EF] rounded-xl flex items-center justify-center border border-[#F6D1DA]"
                 >
-                  <section.icon className="w-6 h-6 text-pink-600" />
+                  <section.icon className="w-6 h-6 text-[#7C1835]" />
                 </motion.div>
                 <div className="flex-1">
-                  <h2 className="text-2xl font-semibold text-gray-900 mb-3">
+                  <h2 className="text-2xl font-bold text-[#2B171D] mb-3">
                     {section.title}
                   </h2>
-                  <p className="text-gray-600 leading-relaxed">
+                  <p className="text-[#6B545A] leading-relaxed font-medium">
                     {section.content}
                   </p>
                 </div>
@@ -152,17 +152,17 @@ const PrivacyPolicy = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.8, duration: 0.6 }}
-          className="mt-12 bg-gradient-to-r from-pink-600 to-pink-700 rounded-2xl p-8 text-center text-white"
+          className="mt-12 gradient-brand rounded-2xl p-8 text-center text-white shadow-xl"
         >
-          <h3 className="text-2xl font-bold mb-3">Questions About Privacy?</h3>
-          <p className="text-pink-100 mb-6">
+          <h3 className="text-2xl font-extrabold mb-3 text-white">Questions About Privacy?</h3>
+          <p className="text-[#F8F4EF]/90 mb-6 font-medium">
             If you have any questions or concerns about our privacy practices, please don't hesitate to contact us.
           </p>
           <motion.a
             href="/contact"
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
-            className="inline-block px-8 py-3 bg-white text-pink-600 font-semibold rounded-xl hover:bg-gray-100 transition"
+            className="inline-block px-8 py-3.5 btn-secondary font-bold rounded-xl shadow-lg cursor-pointer"
           >
             Contact Us
           </motion.a>

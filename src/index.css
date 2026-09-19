@@ -1,6 +1,140 @@
 @import "tailwindcss";
 
+@theme {
+  --color-porcelain: #F8F4EF;
+  --color-porcelain-light: #FDFBF7;
+  --color-blush-pink: #FAF0F3;
+  --color-blush-pink-light: #FCF6F8;
+  --color-cocoa: #2B171D;
+  --color-cocoa-light: #4A3037;
+  --color-cocoa-muted: #6B545A;
+  --color-wine: #7C1835;
+  --color-wine-hover: #5A0F24;
+  --color-wine-dark: #450B1B;
+  --color-powder-pink: #F6D1DA;
+  --color-powder-pink-hover: #F0B8C6;
+  --color-berry-red: #A31D36;
+  --color-berry-hover: #88142B;
+  --color-rose-gold: #C88B7B;
+  --color-rose-gold-hover: #B97969;
+}
+
+:root {
+  --porcelain: #F8F4EF;
+  --blush-pink: #FAF0F3;
+  --cocoa: #2B171D;
+  --wine: #7C1835;
+  --wine-hover: #5A0F24;
+  --powder-pink: #F6D1DA;
+  --powder-pink-hover: #F0B8C6;
+  --berry-red: #A31D36;
+  --rose-gold: #C88B7B;
+  --rose-gold-hover: #B97969;
+}
+
 html,
 body {
-    overflow-x: hidden;
+  overflow-x: hidden;
+  background-color: #F8F4EF;
+  color: #2B171D;
+  font-family: inherit;
 }
+
+/* Standardized Button Classes according to exact requirements */
+.btn-primary {
+  background-color: #7C1835;
+  color: #FFFFFF;
+  transition: all 0.2s ease-in-out;
+}
+.btn-primary:hover {
+  background-color: #5A0F24;
+  box-shadow: 0 4px 14px rgba(124, 24, 53, 0.25);
+}
+
+.btn-secondary {
+  background-color: #F6D1DA;
+  color: #7C1835;
+  transition: all 0.2s ease-in-out;
+}
+.btn-secondary:hover {
+  background-color: #F0B8C6;
+  color: #5A0F24;
+  box-shadow: 0 4px 14px rgba(246, 209, 218, 0.4);
+}
+
+.btn-premium {
+  background-color: #C88B7B;
+  color: #2B171D;
+  font-weight: 700;
+  transition: all 0.2s ease-in-out;
+}
+.btn-premium:hover {
+  background-color: #B97969;
+  box-shadow: 0 4px 16px rgba(200, 139, 123, 0.35);
+}
+
+/* Recommended Brand Gradient Utility */
+.gradient-brand {
+  background: linear-gradient(135deg, #7C1835 0%, #9B1B30 35%, #C88B7B 75%, #F6D1DA 100%);
+}
+
+.gradient-brand-subtle {
+  background: linear-gradient(135deg, #FAF0F3 0%, #F8F4EF 50%, #F6D1DA 100%);
+}
+
+.gradient-text-wine {
+  background: linear-gradient(135deg, #7C1835 0%, #A31D36 50%, #C88B7B 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.card-porcelain {
+  background-color: rgba(250, 240, 243, 0.85);
+  backdrop-filter: blur(8px);
+  border: 1px solid rgba(246, 209, 218, 0.6);
+  box-shadow: 0 10px 30px -5px rgba(43, 23, 29, 0.05);
+}
+
+/* Custom Select & Option Global Theme Styling */
+select {
+  background-color: #FFFFFF;
+  color: #2B171D;
+  border-color: #F6D1DA;
+  accent-color: #7C1835;
+  cursor: pointer;
+}
+
+select:focus {
+  border-color: #7C1835 !important;
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(124, 24, 53, 0.15) !important;
+}
+
+select option {
+  background-color: #FAF0F3 !important;
+  color: #2B171D !important;
+  padding: 12px !important;
+}
+
+select option:checked,
+select option:hover,
+select option:focus {
+  background-color: #7C1835 !important;
+  color: #FFFFFF !important;
+}
+
+/* Custom scrollbar for dropdown menus */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #FAF0F3;
+  border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #C88B7B;
+  border-radius: 8px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #7C1835;
+}

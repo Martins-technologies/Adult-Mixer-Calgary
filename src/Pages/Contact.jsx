@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { motion } from "framer-motion";
-import { Mail, Phone, MapPin, CheckCircle, AlertCircle } from "lucide-react";
+import { Mail, Phone, MapPin, CheckCircle, AlertCircle, Shield, Lock, EyeOff } from "lucide-react";
 import toast, { Toaster } from "react-hot-toast";
 import { submitContactMessage } from "../services/api";
 
@@ -54,18 +54,19 @@ const Contact = () => {
   };
 
   return (
-    <div className="w-full bg-gray-50">
+    <div className="w-full bg-[#F8F4EF] text-[#2B171D] min-h-screen">
       <Toaster />
+      
       {/* ================= HEADER ================= */}
-      <section className="bg-gradient-to-r text-pink-600 py-32">
+      <section className="gradient-brand text-white pt-32 pb-24 relative overflow-hidden">
         <motion.div 
-          className="max-w-7xl mx-auto px-6 text-center"
+          className="max-w-7xl mx-auto px-6 text-center relative z-10"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
           <motion.h1 
-            className="text-4xl md:text-5xl font-bold"
+            className="text-4xl md:text-5xl lg:text-6xl font-extrabold text-white drop-shadow-md"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2, duration: 0.6 }}
@@ -73,7 +74,7 @@ const Contact = () => {
             Contact AdultMixer Calgary
           </motion.h1>
           <motion.p 
-            className="mt-6 text-lg text-gray-800 max-w-2xl mx-auto"
+            className="mt-6 text-lg text-[#F8F4EF]/90 max-w-2xl mx-auto font-medium"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.6 }}
@@ -86,25 +87,25 @@ const Contact = () => {
 
       {/* ================= INFO CARDS ================= */}
       <motion.section 
-        className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-6 -mt-16 mb-20"
+        className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-6 -mt-12 mb-20 relative z-20"
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, delay: 0.5 }}
       >
         <InfoCard
-          icon={<Mail size={40} />}
+          icon={<Mail size={32} className="text-[#7C1835]" />}
           title="Email Us"
           text="support@adultmixercalgary.com"
           delay={0.1}
         />
         <InfoCard
-          icon={<Phone size={40} />}
+          icon={<Phone size={32} className="text-[#7C1835]" />}
           title="Call Us"
           text="+1 (587) 123-4567"
           delay={0.3}
         />
         <InfoCard
-          icon={<MapPin size={40} />}
+          icon={<MapPin size={32} className="text-[#7C1835]" />}
           title="Location"
           text="Calgary, Alberta, Canada"
           delay={0.5}
@@ -115,14 +116,14 @@ const Contact = () => {
       <section className="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-14 mb-24">
         {/* FORM */}
         <motion.div 
-          className="bg-white p-10 rounded-3xl shadow-xl"
+          className="bg-[#FAF0F3] p-8 md:p-10 rounded-3xl shadow-xl border border-[#F6D1DA]"
           initial={{ opacity: 0, x: -30 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
           <motion.h2 
-            className="text-3xl font-bold text-gray-800 mb-6"
+            className="text-3xl font-extrabold text-[#7C1835] mb-6"
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
@@ -143,70 +144,79 @@ const Contact = () => {
               <motion.div
                 initial={{ opacity: 0, y: -10 }}
                 animate={{ opacity: 1, y: 0 }}
-                className={`flex items-center gap-3 p-4 rounded-xl text-sm font-medium ${
+                className={`flex items-center gap-3 p-4 rounded-xl text-sm font-semibold ${
                   submitStatus.type === "success"
-                    ? "bg-green-50 text-green-700 border border-green-200"
-                    : "bg-red-50 text-red-700 border border-red-200"
+                    ? "bg-[#FAF0F3] text-[#7C1835] border border-[#F6D1DA]"
+                    : "bg-[#A31D36]/10 text-[#A31D36] border border-[#A31D36]/30"
                 }`}
               >
                 {submitStatus.type === "success" ? (
-                  <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                  <CheckCircle className="w-5 h-5 flex-shrink-0 text-[#7C1835]" />
                 ) : (
-                  <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                  <AlertCircle className="w-5 h-5 flex-shrink-0 text-[#A31D36]" />
                 )}
                 {submitStatus.message}
               </motion.div>
             )}
 
-            <motion.input
-              type="text"
-              name="name"
-              placeholder="Your Full Name"
-              value={formData.name}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-pink-500 outline-none"
-              required
-              disabled={isSubmitting}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.4 }}
-            />
+            <div>
+              <label className="block text-[#2B171D] font-semibold mb-1.5 text-sm">Full Name</label>
+              <motion.input
+                type="text"
+                name="name"
+                placeholder="Your Full Name"
+                value={formData.name}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-xl border border-[#F6D1DA] bg-white focus:ring-2 focus:ring-[#7C1835] outline-none text-[#2B171D] font-medium"
+                required
+                disabled={isSubmitting}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.4 }}
+              />
+            </div>
 
-            <motion.input
-              type="email"
-              name="email"
-              placeholder="Your Email Address"
-              value={formData.email}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-pink-500 outline-none"
-              required
-              disabled={isSubmitting}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.5 }}
-            />
+            <div>
+              <label className="block text-[#2B171D] font-semibold mb-1.5 text-sm">Email Address</label>
+              <motion.input
+                type="email"
+                name="email"
+                placeholder="Your Email Address"
+                value={formData.email}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-xl border border-[#F6D1DA] bg-white focus:ring-2 focus:ring-[#7C1835] outline-none text-[#2B171D] font-medium"
+                required
+                disabled={isSubmitting}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.5 }}
+              />
+            </div>
 
-            <motion.textarea
-              name="message"
-              rows="5"
-              placeholder="Write your message..."
-              value={formData.message}
-              onChange={handleChange}
-              className="w-full px-4 py-3 rounded-xl border focus:ring-2 focus:ring-pink-500 outline-none"
-              required
-              disabled={isSubmitting}
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ delay: 0.6 }}
-            ></motion.textarea>
+            <div>
+              <label className="block text-[#2B171D] font-semibold mb-1.5 text-sm">Your Message</label>
+              <motion.textarea
+                name="message"
+                rows="5"
+                placeholder="Write your message..."
+                value={formData.message}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-xl border border-[#F6D1DA] bg-white focus:ring-2 focus:ring-[#7C1835] outline-none text-[#2B171D] font-medium"
+                required
+                disabled={isSubmitting}
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.6 }}
+              ></motion.textarea>
+            </div>
 
             <motion.button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-pink-600 text-white py-3 rounded-xl font-semibold hover:bg-pink-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full btn-primary text-white py-3.5 rounded-xl font-bold shadow-lg disabled:opacity-50 disabled:cursor-not-allowed text-base cursor-pointer"
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -218,57 +228,80 @@ const Contact = () => {
             </motion.button>
 
             <motion.p 
-              className="text-xs text-gray-500 text-center mt-2"
+              className="text-xs text-[#6B545A] text-center mt-2 font-medium"
               initial={{ opacity: 0 }}
               whileInView={{ opacity: 1 }}
               viewport={{ once: true }}
               transition={{ delay: 0.8 }}
             >
-              Your information is private and will never be shared.
+              Your information is private and will never be shared with third parties.
             </motion.p>
           </motion.form>
         </motion.div>
 
         {/* TEXT CONTENT */}
         <motion.div 
-          className="flex flex-col justify-center"
+          className="flex flex-col justify-center space-y-6"
           initial={{ opacity: 0, x: 30 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8 }}
         >
-          <motion.h3 
-            className="text-3xl font-bold text-gray-800 mb-4"
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.2 }}
-          >
-            Safe. Private. Confidential.
-          </motion.h3>
-          <motion.p 
-            className="text-gray-600 mb-6 leading-relaxed"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.3 }}
-          >
-            AdultMixer Calgary is a trusted adult dating platform focused on
-            privacy, safety, and real connections. Our support team is trained
-            to handle all inquiries discreetly and professionally.
-          </motion.p>
+          <div>
+            <motion.h3 
+              className="text-3xl font-extrabold text-[#7C1835] mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.2 }}
+            >
+              Safe. Private. Confidential.
+            </motion.h3>
+            <motion.p 
+              className="text-[#6B545A] mb-6 leading-relaxed font-medium text-base"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.3 }}
+            >
+              AdultMixer Calgary is a trusted adult dating platform focused on
+              privacy, safety, and real connections. Our support team is trained
+              to handle all inquiries discreetly and professionally.
+            </motion.p>
+            <motion.p 
+              className="text-[#6B545A] leading-relaxed font-medium text-base"
+              initial={{ opacity: 0 }}
+              whileInView={{ opacity: 1 }}
+              viewport={{ once: true }}
+              transition={{ delay: 0.4 }}
+            >
+              If you have concerns regarding account security, abuse reports, or
+              privacy issues, please contact us immediately. Your safety matters
+              to us.
+            </motion.p>
+          </div>
 
-          <motion.p 
-            className="text-gray-600 leading-relaxed"
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ delay: 0.4 }}
-          >
-            If you have concerns regarding account security, abuse reports, or
-            privacy issues, please contact us immediately. Your safety matters
-            to us.
-          </motion.p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4">
+            <div className="flex items-center gap-3 p-4 bg-[#FAF0F3] rounded-2xl border border-[#F6D1DA]">
+              <div className="p-2.5 bg-[#7C1835] text-white rounded-xl">
+                <Shield size={20} />
+              </div>
+              <div>
+                <h4 className="font-bold text-[#2B171D] text-sm">Discreet Support</h4>
+                <p className="text-xs text-[#6B545A]">100% Confidential</p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-3 p-4 bg-[#FAF0F3] rounded-2xl border border-[#F6D1DA]">
+              <div className="p-2.5 bg-[#7C1835] text-white rounded-xl">
+                <Lock size={20} />
+              </div>
+              <div>
+                <h4 className="font-bold text-[#2B171D] text-sm">Secure Data</h4>
+                <p className="text-xs text-[#6B545A]">Encrypted messages</p>
+              </div>
+            </div>
+          </div>
         </motion.div>
       </section>
 
@@ -281,7 +314,7 @@ const Contact = () => {
         transition={{ duration: 0.8 }}
       >
         <motion.h2 
-          className="text-3xl font-bold text-gray-800 text-center mb-6"
+          className="text-3xl font-extrabold text-[#7C1835] text-center mb-6"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -290,7 +323,7 @@ const Contact = () => {
           Find Us in Calgary
         </motion.h2>
         <motion.div 
-          className="rounded-3xl overflow-hidden shadow-lg h-96"
+          className="rounded-3xl overflow-hidden shadow-xl border border-[#F6D1DA] h-96"
           initial={{ opacity: 0, scale: 0.95 }}
           whileInView={{ opacity: 1, scale: 1 }}
           viewport={{ once: true }}
@@ -315,18 +348,18 @@ const Contact = () => {
 const InfoCard = ({ icon, title, text, delay = 0 }) => {
   return (
     <motion.div 
-      className="bg-white p-6 rounded-2xl shadow-md text-center hover:-translate-y-1 transition"
+      className="bg-[#FAF0F3] p-8 rounded-2xl shadow-lg border border-[#F6D1DA] text-center hover:-translate-y-1 transition cursor-pointer"
       initial={{ opacity: 0, y: 30 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.6, delay }}
-      whileHover={{ scale: 1.05, y: -5 }}
+      whileHover={{ scale: 1.03, y: -4 }}
     >
-      <div className="text-pink-600 mx-auto mb-3 flex justify-center">
+      <div className="text-[#7C1835] mx-auto mb-4 flex justify-center bg-[#F8F4EF] p-3 w-16 h-16 rounded-2xl border border-[#F6D1DA] items-center">
         {icon}
       </div>
-      <h3 className="text-xl font-bold text-gray-800">{title}</h3>
-      <p className="text-gray-600 mt-2">{text}</p>
+      <h3 className="text-xl font-bold text-[#2B171D]">{title}</h3>
+      <p className="text-[#6B545A] mt-2 font-medium text-sm">{text}</p>
     </motion.div>
   );
 };
