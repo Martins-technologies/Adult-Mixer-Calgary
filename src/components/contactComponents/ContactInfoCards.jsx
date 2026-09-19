@@ -4,49 +4,45 @@ import { Mail, Phone, MapPin } from "lucide-react";
 
 const ContactInfoCards = () => {
   return (
-    <>
-      {/* Contact Info Cards */}
-      <section className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-6 mb-14">
-        <motion.div 
-          className="bg-white p-6 rounded-2xl shadow-md text-center hover:-translate-y-1 transition cursor-pointer"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          whileHover={{ scale: 1.05, y: -5 }}
-        >
-          <Mail className="mx-auto text-pink-600 mb-3" size={40} />
-          <h3 className="text-xl font-bold text-gray-800">Email Us</h3>
-          <p className="text-gray-600 mt-2">support@adultmixercalgary.com</p>
-        </motion.div>
+    <section className="max-w-6xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8 px-6 -mt-12 mb-20 relative z-20">
+      <InfoCard
+        icon={<Mail size={36} className="text-[#7C1835]" />}
+        title="Email Us"
+        text="support@adultmixercalgary.com"
+        delay={0.1}
+      />
+      <InfoCard
+        icon={<Phone size={36} className="text-[#7C1835]" />}
+        title="Call Us"
+        text="+1 (587) 123-4567"
+        delay={0.3}
+      />
+      <InfoCard
+        icon={<MapPin size={36} className="text-[#7C1835]" />}
+        title="Location"
+        text="Calgary, Alberta, Canada"
+        delay={0.5}
+      />
+    </section>
+  );
+};
 
-        <motion.div 
-          className="bg-white p-6 rounded-2xl shadow-md text-center hover:-translate-y-1 transition cursor-pointer"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          whileHover={{ scale: 1.05, y: -5 }}
-        >
-          <Phone className="mx-auto text-pink-600 mb-3" size={40} />
-          <h3 className="text-xl font-bold text-gray-800">Call Us</h3>
-          <p className="text-gray-600 mt-2">+1 (587) 123-4567</p>
-        </motion.div>
-
-        <motion.div 
-          className="bg-white p-6 rounded-2xl shadow-md text-center hover:-translate-y-1 transition cursor-pointer"
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.5 }}
-          whileHover={{ scale: 1.05, y: -5 }}
-        >
-          <MapPin className="mx-auto text-pink-600 mb-3" size={40} />
-          <h3 className="text-xl font-bold text-gray-800">Location</h3>
-          <p className="text-gray-600 mt-2">Calgary, Alberta, Canada</p>
-        </motion.div>
-      </section>
-    </>
+const InfoCard = ({ icon, title, text, delay = 0 }) => {
+  return (
+    <motion.div 
+      className="bg-[#FAF0F3] p-8 rounded-2xl shadow-lg border border-[#F6D1DA] text-center cursor-pointer"
+      initial={{ opacity: 0, y: 30 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.6, delay }}
+      whileHover={{ scale: 1.03, y: -4 }}
+    >
+      <div className="text-[#7C1835] mx-auto mb-4 flex justify-center bg-[#F8F4EF] p-3 w-16 h-16 rounded-2xl border border-[#F6D1DA] items-center">
+        {icon}
+      </div>
+      <h3 className="text-xl font-bold text-[#2B171D]">{title}</h3>
+      <p className="text-[#6B545A] mt-2 font-medium text-sm">{text}</p>
+    </motion.div>
   );
 };
 

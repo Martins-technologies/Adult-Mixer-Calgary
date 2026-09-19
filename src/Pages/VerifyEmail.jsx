@@ -42,9 +42,9 @@ const VerifyEmail = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-pink-100 via-purple-50 to-pink-50 px-4 py-28">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#F8F4EF] px-4 py-28 text-[#2B171D]">
       <motion.div
-        className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-10 border border-pink-100"
+        className="w-full max-w-md bg-[#FAF0F3] rounded-3xl shadow-xl p-8 md:p-10 border border-[#F6D1DA]"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, type: "spring" }}
@@ -57,30 +57,30 @@ const VerifyEmail = () => {
           transition={{ delay: 0.2, duration: 0.5 }}
         >
           {status === "verifying" && (
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mb-4">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-[#7C1835] rounded-full mb-4 shadow-md">
               <Loader className="text-white animate-spin" size={40} />
             </div>
           )}
 
           {status === "success" && (
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-green-500 to-emerald-600 rounded-full mb-4">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-[#7C1835] rounded-full mb-4 shadow-md">
               <CheckCircle className="text-white" size={40} />
             </div>
           )}
 
           {status === "error" && (
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-red-500 to-rose-600 rounded-full mb-4">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-[#A31D36] rounded-full mb-4 shadow-md">
               <XCircle className="text-white" size={40} />
             </div>
           )}
 
           <h2
-            className={`text-3xl font-bold mb-2 ${
+            className={`text-3xl font-extrabold mb-2 ${
               status === "success"
-                ? "text-green-600"
+                ? "text-[#7C1835]"
                 : status === "error"
-                  ? "text-red-600"
-                  : "text-purple-600"
+                  ? "text-[#A31D36]"
+                  : "text-[#7C1835]"
             }`}
           >
             {status === "verifying" && "Verifying Email..."}
@@ -96,22 +96,22 @@ const VerifyEmail = () => {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.4 }}
         >
-          <p className="text-gray-600 text-base mb-6">{message}</p>
+          <p className="text-[#6B545A] text-base mb-6 font-medium">{message}</p>
 
           {status === "success" && (
             <div className="space-y-4">
-              <div className="bg-green-50 border border-green-200 rounded-xl p-4">
-                <p className="text-green-700 text-sm">
+              <div className="bg-[#FAF0F3] border border-[#F6D1DA] rounded-xl p-4">
+                <p className="text-[#7C1835] font-bold text-sm">
                   ✅ Your account is now active!
                 </p>
-                <p className="text-green-600 text-sm mt-2">
+                <p className="text-[#6B545A] text-sm mt-2 font-medium">
                   Redirecting to login page...
                 </p>
               </div>
 
               <motion.button
                 onClick={() => navigate("/login")}
-                className="w-full py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold rounded-xl hover:from-pink-700 hover:to-purple-700 transition"
+                className="w-full py-3.5 btn-primary text-white font-bold rounded-xl shadow-lg cursor-pointer"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -122,18 +122,18 @@ const VerifyEmail = () => {
 
           {status === "error" && (
             <div className="space-y-4">
-              <div className="bg-red-50 border border-red-200 rounded-xl p-4">
-                <p className="text-red-700 text-sm">
+              <div className="bg-[#A31D36]/10 border border-[#A31D36]/30 rounded-xl p-4">
+                <p className="text-[#A31D36] font-bold text-sm">
                   ❌ Unable to verify your email
                 </p>
-                <p className="text-red-600 text-sm mt-2">
+                <p className="text-[#A31D36] text-sm mt-2 font-medium">
                   The verification link may have expired or is invalid.
                 </p>
               </div>
 
               <motion.button
                 onClick={() => navigate("/resend-verification")}
-                className="w-full py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold rounded-xl hover:from-pink-700 hover:to-purple-700 transition"
+                className="w-full py-3.5 btn-primary text-white font-bold rounded-xl shadow-lg cursor-pointer"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -142,7 +142,7 @@ const VerifyEmail = () => {
 
               <button
                 onClick={() => navigate("/login")}
-                className="w-full py-3 text-gray-600 font-semibold rounded-xl hover:bg-gray-100 transition"
+                className="w-full py-3 text-[#7C1835] font-bold rounded-xl hover:bg-[#F6D1DA]/50 transition cursor-pointer"
               >
                 Back to Login
               </button>
@@ -150,8 +150,8 @@ const VerifyEmail = () => {
           )}
 
           {status === "verifying" && (
-            <div className="bg-purple-50 border border-purple-200 rounded-xl p-4">
-              <p className="text-purple-700 text-sm">
+            <div className="bg-[#FAF0F3] border border-[#F6D1DA] rounded-xl p-4">
+              <p className="text-[#7C1835] font-bold text-sm">
                 Please wait while we verify your email address...
               </p>
             </div>

@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft,
   ChevronRight,
+  ChevronDown,
+  Check,
   MapPin,
   Navigation,
   Heart,
@@ -61,27 +63,115 @@ const mapUserToFormData = (profile) => ({
 
 const STEPS = ["Basics", "Lifestyle", "Location", "Preferences"];
 
-const SelectField = ({ label, name, value, onChange, options, required }) => (
-  <div>
-    <label className="block text-gray-700 font-semibold mb-2 text-sm">
-      {label} {required && <span className="text-pink-500">*</span>}
-    </label>
-    <select
-      name={name}
-      value={value}
-      onChange={onChange}
-      required={required}
-      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-600 focus:border-transparent outline-none transition bg-white"
-    >
-      <option value="">Select...</option>
-      {options.map((opt) => (
-        <option key={opt.value} value={opt.value}>
-          {opt.label}
-        </option>
-      ))}
-    </select>
-  </div>
-);
+const SelectField = ({ label, name, value, onChange, options, required, placeholder = "Select..." }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
+
+  const selectedOption = options.find((opt) => String(opt.value) === String(value));
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (containerRef.current && !containerRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  const handleSelect = (val) => {
+    onChange({ target: { name, value: val } });
+    setIsOpen(false);
+  };
+
+  return (
+    <div className="relative" ref={containerRef}>
+      {label && (
+        <label className="block text-[#2B171D] font-semibold mb-2 text-sm">
+          {label} {required && <span className="text-[#A31D36]">*</span>}
+        </label>
+      )}
+
+      {/* Hidden Native Select for Browser Form Validation / State */}
+      <select
+        name={name}
+        value={value}
+        onChange={onChange}
+        required={required}
+        className="sr-only"
+        tabIndex={-1}
+      >
+        <option value="">{placeholder}</option>
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value}>
+            {opt.label}
+          </option>
+        ))}
+      </select>
+
+      {/* Custom Trigger Button */}
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className={`w-full px-4 py-3 border rounded-xl text-left flex items-center justify-between transition-all bg-white font-medium ${
+          isOpen
+            ? "border-[#7C1835] ring-2 ring-[#7C1835]/20 shadow-md"
+            : "border-[#F6D1DA] hover:border-[#7C1835]/50"
+        } ${value ? "text-[#2B171D]" : "text-[#8A7178]"}`}
+      >
+        <span className="truncate">{selectedOption ? selectedOption.label : placeholder}</span>
+        <ChevronDown
+          size={18}
+          className={`text-[#7C1835] shrink-0 transition-transform duration-200 ${
+            isOpen ? "rotate-180" : ""
+          }`}
+        />
+      </button>
+
+      {/* Custom Options Menu */}
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -4, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -4, scale: 0.98 }}
+            transition={{ duration: 0.15 }}
+            className="absolute z-50 left-0 right-0 mt-1.5 bg-[#FAF0F3] border border-[#F6D1DA] rounded-2xl shadow-2xl overflow-hidden py-1.5 max-h-60 overflow-y-auto custom-scrollbar"
+          >
+            <div
+              onClick={() => handleSelect("")}
+              className={`px-4 py-2.5 cursor-pointer text-sm font-medium transition flex items-center justify-between ${
+                !value
+                  ? "bg-[#7C1835] text-white font-semibold"
+                  : "text-[#6B545A] hover:bg-[#7C1835] hover:text-white"
+              }`}
+            >
+              <span>{placeholder}</span>
+              {!value && <Check size={16} className="text-white shrink-0 ml-2" />}
+            </div>
+            {options.map((opt) => {
+              const isSelected = String(value) === String(opt.value);
+              return (
+                <div
+                  key={opt.value}
+                  onClick={() => handleSelect(opt.value)}
+                  className={`px-4 py-2.5 cursor-pointer text-sm font-medium transition flex items-center justify-between ${
+                    isSelected
+                      ? "bg-[#7C1835] text-white font-bold"
+                      : "text-[#2B171D] hover:bg-[#7C1835] hover:text-white"
+                  }`}
+                >
+                  <span>{opt.label}</span>
+                  {isSelected && <Check size={16} className="text-white shrink-0 ml-2" />}
+                </div>
+              );
+            })}
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+};
 
 const OnboardingProfile = () => {
   const navigate = useNavigate();
@@ -326,56 +416,64 @@ const OnboardingProfile = () => {
 
   if (authLoading || !user || !formReady) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl text-gray-600">Loading profile...</div>
+      <div className="min-h-screen bg-[#F8F4EF] flex items-center justify-center">
+        <div className="text-xl text-[#6B545A] font-semibold">Loading profile...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-pink-100 via-purple-50 to-pink-50 px-4 py-28">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#F8F4EF] px-4 py-28 relative overflow-hidden">
+      {/* BACKGROUND IMAGE OVERLAY */}
+      <div 
+        className="absolute inset-0 bg-cover bg-center bg-no-repeat z-0"
+        style={{ backgroundImage: "url('/onboarding_bg.jpg')" }}
+      />
+      <div className="absolute inset-0 bg-[#2B171D]/60 backdrop-blur-[2px] z-0" />
+
       <Toaster />
 
       {showNoMatchModal && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 px-4">
+        <div className="fixed inset-0 bg-[#2B171D]/80 flex items-center justify-center z-50 px-4">
           <motion.div
-            className="bg-white rounded-3xl p-8 max-w-md w-full text-center shadow-2xl"
+            className="bg-[#FAF0F3] border border-[#F6D1DA] rounded-3xl p-8 max-w-md w-full text-center shadow-2xl text-[#2B171D]"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
           >
-            <div className="inline-flex items-center justify-center w-16 h-16 bg-pink-100 rounded-full mb-4">
-              <Heart className="text-pink-500" size={32} />
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-[#F8F4EF] rounded-full mb-4 border border-[#F6D1DA]">
+              <Heart className="text-[#A31D36] fill-[#A31D36]" size={32} />
             </div>
-            <h2 className="text-2xl font-bold text-gray-800 mb-3">
+            <h2 className="text-2xl font-extrabold text-[#7C1835] mb-3">
               No Perfect Match Yet
             </h2>
-            <p className="text-gray-600 mb-6">
+            <p className="text-[#6B545A] mb-6 font-medium">
               We could not find your perfect match right now. You can still
               explore other profiles and connect with people nearby.
             </p>
             <button
               type="button"
               onClick={() => navigate("/explore")}
-              className="w-full py-3 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold hover:from-pink-700 hover:to-purple-700 transition"
+              className="w-full py-3.5 rounded-xl btn-primary text-white font-bold transition shadow-lg cursor-pointer"
             >
               Click here to Explore Matches
             </button>
           </motion.div>
         </div>
       )}
+
       <motion.div
-        className="w-full max-w-2xl bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-10 border border-pink-100"
+        className="w-full max-w-2xl bg-[#FAF0F3]/95 backdrop-blur-md rounded-3xl shadow-2xl p-8 md:p-10 border border-[#F6D1DA] relative z-10 text-[#2B171D]"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
       >
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mb-4">
-            <Heart className="text-white" size={32} fill="white" />
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#7C1835] rounded-full mb-4 shadow-md">
+            <Heart className="text-white fill-white" size={32} />
           </div>
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-3xl font-extrabold text-[#7C1835]">
             {isEditMode ? "Edit Your Profile" : "Complete Your Profile"}
           </h2>
-          <p className="text-gray-600 text-sm mt-2">
+          <p className="text-[#6B545A] text-sm mt-2 font-medium">
             Step {step + 1} of {STEPS.length}: {STEPS[step]}
           </p>
           <div className="flex gap-2 justify-center mt-4">
@@ -383,7 +481,7 @@ const OnboardingProfile = () => {
               <div
                 key={i}
                 className={`h-2 rounded-full transition-all ${
-                  i <= step ? "bg-pink-500 w-8" : "bg-gray-200 w-4"
+                  i <= step ? "bg-[#7C1835] w-8" : "bg-[#F6D1DA] w-4"
                 }`}
               />
             ))}
@@ -503,7 +601,7 @@ const OnboardingProfile = () => {
                   options={FREQUENCY_OPTIONS}
                 />
                 <div>
-                  <label className="block text-gray-700 font-semibold mb-2 text-sm">
+                  <label className="block text-[#2B171D] font-semibold mb-2 text-sm">
                     Pets
                   </label>
                   <div className="flex flex-wrap gap-2">
@@ -512,10 +610,10 @@ const OnboardingProfile = () => {
                         key={opt.value}
                         type="button"
                         onClick={() => handlePetToggle(opt.value)}
-                        className={`px-4 py-2 rounded-full text-sm font-medium transition ${
+                        className={`px-4 py-2 rounded-full text-sm font-semibold transition cursor-pointer ${
                           formData.pets.includes(opt.value)
-                            ? "bg-pink-600 text-white"
-                            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                            ? "bg-[#7C1835] text-white"
+                            : "bg-[#F8F4EF] text-[#2B171D] border border-[#F6D1DA] hover:bg-[#F6D1DA]"
                         }`}
                       >
                         {opt.label}
@@ -537,12 +635,12 @@ const OnboardingProfile = () => {
                   required
                 />
                 <div>
-                  <label className="block text-gray-700 font-semibold mb-2 text-sm">
-                    City <span className="text-pink-500">*</span>
+                  <label className="block text-[#2B171D] font-semibold mb-2 text-sm">
+                    City <span className="text-[#A31D36]">*</span>
                   </label>
                   <div className="relative">
                     <MapPin
-                      className="absolute left-4 top-3.5 text-gray-400"
+                      className="absolute left-4 top-3.5 text-[#7C1835]"
                       size={20}
                     />
                     <input
@@ -550,17 +648,17 @@ const OnboardingProfile = () => {
                       name="city"
                       value={formData.city}
                       onChange={handleChange}
-                      className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-600 outline-none"
+                      className="w-full pl-12 pr-4 py-3 border border-[#F6D1DA] bg-white rounded-xl focus:ring-2 focus:ring-[#7C1835] outline-none text-[#2B171D] font-medium"
                       required
                     />
                   </div>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex gap-3 pt-2">
                   <button
                     type="button"
                     onClick={handleGeolocation}
                     disabled={locating}
-                    className="flex-1 py-3 rounded-xl border border-pink-300 text-pink-600 font-semibold flex items-center justify-center gap-2 hover:bg-pink-50 transition disabled:opacity-50"
+                    className="flex-1 py-3 rounded-xl border border-[#F6D1DA] bg-[#F8F4EF] text-[#7C1835] font-bold flex items-center justify-center gap-2 hover:bg-[#F6D1DA] transition disabled:opacity-50 cursor-pointer"
                   >
                     <Navigation size={18} />
                     {locating ? "Getting location..." : "Use my location"}
@@ -568,14 +666,14 @@ const OnboardingProfile = () => {
                   <button
                     type="button"
                     onClick={geocodeCity}
-                    className="flex-1 py-3 rounded-xl border border-purple-300 text-purple-600 font-semibold flex items-center justify-center gap-2 hover:bg-purple-50 transition"
+                    className="flex-1 py-3 rounded-xl border border-[#F6D1DA] bg-[#F8F4EF] text-[#7C1835] font-bold flex items-center justify-center gap-2 hover:bg-[#F6D1DA] transition cursor-pointer"
                   >
                     <MapPin size={18} />
                     Geocode city
                   </button>
                 </div>
                 {formData.latitude && formData.longitude && (
-                  <p className="text-sm text-green-600 text-center">
+                  <p className="text-sm text-[#7C1835] font-semibold text-center mt-2">
                     Location set: {parseFloat(formData.latitude).toFixed(4)},{" "}
                     {parseFloat(formData.longitude).toFixed(4)}
                   </p>
@@ -587,8 +685,8 @@ const OnboardingProfile = () => {
               <>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-gray-700 font-semibold mb-2 text-sm">
-                      Min age <span className="text-pink-500">*</span>
+                    <label className="block text-[#2B171D] font-semibold mb-2 text-sm">
+                      Min age <span className="text-[#A31D36]">*</span>
                     </label>
                     <input
                       type="number"
@@ -597,13 +695,13 @@ const OnboardingProfile = () => {
                       max="120"
                       value={formData.prefMinAge}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-600 outline-none"
+                      className="w-full px-4 py-3 border border-[#F6D1DA] bg-white rounded-xl focus:ring-2 focus:ring-[#7C1835] outline-none text-[#2B171D] font-medium"
                       required
                     />
                   </div>
                   <div>
-                    <label className="block text-gray-700 font-semibold mb-2 text-sm">
-                      Max age <span className="text-pink-500">*</span>
+                    <label className="block text-[#2B171D] font-semibold mb-2 text-sm">
+                      Max age <span className="text-[#A31D36]">*</span>
                     </label>
                     <input
                       type="number"
@@ -612,14 +710,14 @@ const OnboardingProfile = () => {
                       max="120"
                       value={formData.prefMaxAge}
                       onChange={handleChange}
-                      className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-600 outline-none"
+                      className="w-full px-4 py-3 border border-[#F6D1DA] bg-white rounded-xl focus:ring-2 focus:ring-[#7C1835] outline-none text-[#2B171D] font-medium"
                       required
                     />
                   </div>
                 </div>
                 <div>
-                  <label className="block text-gray-700 font-semibold mb-2 text-sm">
-                    Max distance (km) <span className="text-pink-500">*</span>
+                  <label className="block text-[#2B171D] font-semibold mb-2 text-sm">
+                    Max distance (km) <span className="text-[#A31D36]">*</span>
                   </label>
                   <input
                     type="number"
@@ -628,7 +726,7 @@ const OnboardingProfile = () => {
                     max="500"
                     value={formData.prefMaxDistanceKm}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-600 outline-none"
+                    className="w-full px-4 py-3 border border-[#F6D1DA] bg-white rounded-xl focus:ring-2 focus:ring-[#7C1835] outline-none text-[#2B171D] font-medium"
                     required
                   />
                 </div>
@@ -642,7 +740,7 @@ const OnboardingProfile = () => {
             <button
               type="button"
               onClick={handleBack}
-              className="flex-1 py-3 rounded-xl border font-semibold flex items-center justify-center gap-2 hover:bg-gray-50"
+              className="flex-1 py-3.5 rounded-xl btn-secondary font-bold flex items-center justify-center gap-2 cursor-pointer text-base"
             >
               <ChevronLeft size={18} /> Back
             </button>
@@ -651,7 +749,7 @@ const OnboardingProfile = () => {
             <button
               type="button"
               onClick={handleNext}
-              className="flex-1 py-3 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold flex items-center justify-center gap-2"
+              className="flex-1 py-3.5 rounded-xl btn-primary text-white font-bold flex items-center justify-center gap-2 shadow-lg cursor-pointer text-base"
             >
               Next <ChevronRight size={18} />
             </button>
@@ -660,7 +758,7 @@ const OnboardingProfile = () => {
               type="button"
               onClick={handleSubmit}
               disabled={isLoading}
-              className="flex-1 py-3 rounded-xl bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold disabled:opacity-50"
+              className="flex-1 py-3.5 rounded-xl btn-primary text-white font-bold shadow-lg disabled:opacity-50 cursor-pointer text-base"
             >
               {isLoading ? "Saving..." : isEditMode ? "Save Profile" : "Complete Profile"}
             </button>

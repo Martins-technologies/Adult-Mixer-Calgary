@@ -35,14 +35,14 @@ const Navbar = () => {
   };
 
   const linkClass = ({ isActive }) =>
-    `transition duration-300 ${
+    `transition duration-300 font-medium ${
       isActive
-        ? "text-pink-600 font-semibold"
-        : "text-gray-700 hover:text-pink-600"
+        ? "text-[#7C1835] font-bold border-b-2 border-[#7C1835]"
+        : "text-[#2B171D] hover:text-[#7C1835]"
     }`;
 
   return (
-    <nav className="w-full bg-white shadow-md fixed top-0 left-0 z-50">
+    <nav className="w-full bg-[#F8F4EF]/95 backdrop-blur-md shadow-sm fixed top-0 left-0 z-50 border-b border-[#F6D1DA]/60">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center">
@@ -54,7 +54,7 @@ const Navbar = () => {
         </Link>
 
         {/* Desktop Menu */}
-        <ul className="hidden md:flex space-x-8 text-lg font-medium">
+        <ul className="hidden md:flex space-x-8 text-lg">
           <NavLink to="/" className={linkClass}>
             Home
           </NavLink>
@@ -73,12 +73,12 @@ const Navbar = () => {
         </ul>
 
         {/* Desktop Buttons */}
-        <div className="hidden md:flex space-x-4">
+        <div className="hidden md:flex space-x-4 items-center">
           {user ? (
             <div className="relative" ref={dropdownRef}>
               <button
                 onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center space-x-2 px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700 transition"
+                className="flex items-center space-x-2 px-4 py-2 rounded-xl btn-primary shadow-sm"
               >
                 {user.profileImageUrl ? (
                   <img
@@ -92,22 +92,22 @@ const Navbar = () => {
                   />
                 ) : null}
                 {!user.profileImageUrl && <User size={20} />}
-                <span>{user.firstName}</span>
+                <span className="font-semibold">{user.firstName}</span>
               </button>
 
               {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg py-2 z-50 border border-gray-200">
+                <div className="absolute right-0 mt-2 w-48 bg-[#FAF0F3] rounded-xl shadow-xl py-2 z-50 border border-[#F6D1DA]">
                   <Link
                     to="/profile"
                     onClick={() => setDropdownOpen(false)}
-                    className="flex items-center space-x-2 px-4 py-2 hover:bg-pink-50 transition text-gray-700"
+                    className="flex items-center space-x-2 px-4 py-2 hover:bg-[#F6D1DA] transition text-[#2B171D] font-medium"
                   >
-                    <User size={18} />
+                    <User size={18} className="text-[#7C1835]" />
                     <span>Profile</span>
                   </Link>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center space-x-2 w-full px-4 py-2 hover:bg-pink-50 transition text-left text-gray-700"
+                    className="flex items-center space-x-2 w-full px-4 py-2 hover:bg-[#F6D1DA] transition text-left text-[#7C1835] font-semibold"
                   >
                     <LogOut size={18} />
                     <span>Logout</span>
@@ -119,13 +119,13 @@ const Navbar = () => {
             <>
               <Link
                 to="/login"
-                className="px-5 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700 transition"
+                className="px-5 py-2 rounded-xl btn-secondary font-semibold"
               >
                 Login
               </Link>
               <Link
                 to="/signup"
-                className="px-5 py-2 rounded-xl bg-pink-600 text-white hover:bg-pink-700 transition"
+                className="px-5 py-2 rounded-xl btn-primary font-semibold shadow-md"
               >
                 Sign Up
               </Link>
@@ -135,7 +135,7 @@ const Navbar = () => {
 
         {/* Mobile Menu Button */}
         <button
-          className="md:hidden text-gray-800"
+          className="md:hidden text-[#2B171D] hover:text-[#7C1835]"
           onClick={() => setOpen(!open)}
         >
           {open ? <X size={30} /> : <Menu size={30} />}
@@ -144,15 +144,15 @@ const Navbar = () => {
 
       {/* Mobile Dropdown */}
       {open && (
-        <div className="md:hidden bg-white shadow-lg px-6 py-5 space-y-3 text-lg font-medium">
+        <div className="md:hidden bg-[#FAF0F3] shadow-xl border-t border-[#F6D1DA] px-6 py-5 space-y-3 text-lg font-medium">
           <NavLink
             to="/"
             onClick={() => setOpen(false)}
             className={({ isActive }) =>
               `block w-full px-3 py-2 rounded-lg ${
                 isActive
-                  ? "text-pink-600 font-semibold"
-                  : "text-gray-700 hover:text-pink-600"
+                  ? "text-[#7C1835] font-bold bg-[#F6D1DA]/50"
+                  : "text-[#2B171D] hover:text-[#7C1835]"
               }`
             }
           >
@@ -165,8 +165,8 @@ const Navbar = () => {
             className={({ isActive }) =>
               `block w-full px-3 py-2 rounded-lg ${
                 isActive
-                  ? "text-pink-600 font-semibold"
-                  : "text-gray-700 hover:text-pink-600"
+                  ? "text-[#7C1835] font-bold bg-[#F6D1DA]/50"
+                  : "text-[#2B171D] hover:text-[#7C1835]"
               }`
             }
           >
@@ -179,8 +179,8 @@ const Navbar = () => {
             className={({ isActive }) =>
               `block w-full px-3 py-2 rounded-lg ${
                 isActive
-                  ? "text-pink-600 font-semibold"
-                  : "text-gray-700 hover:text-pink-600"
+                  ? "text-[#7C1835] font-bold bg-[#F6D1DA]/50"
+                  : "text-[#2B171D] hover:text-[#7C1835]"
               }`
             }
           >
@@ -193,8 +193,8 @@ const Navbar = () => {
             className={({ isActive }) =>
               `block w-full px-3 py-2 rounded-lg ${
                 isActive
-                  ? "text-pink-600 font-semibold"
-                  : "text-gray-700 hover:text-pink-600"
+                  ? "text-[#7C1835] font-bold bg-[#F6D1DA]/50"
+                  : "text-[#2B171D] hover:text-[#7C1835]"
               }`
             }
           >
@@ -207,8 +207,8 @@ const Navbar = () => {
             className={({ isActive }) =>
               `block w-full px-3 py-2 rounded-lg ${
                 isActive
-                  ? "text-pink-600 font-semibold"
-                  : "text-gray-700 hover:text-pink-600"
+                  ? "text-[#7C1835] font-bold bg-[#F6D1DA]/50"
+                  : "text-[#2B171D] hover:text-[#7C1835]"
               }`
             }
           >
@@ -216,11 +216,11 @@ const Navbar = () => {
           </NavLink>
 
           {!user && (
-            <>
+            <div className="pt-2 space-y-2">
               <Link
                 to="/login"
                 onClick={() => setOpen(false)}
-                className="block w-full text-center px-4 py-2 mt-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700 transition"
+                className="block w-full text-center px-4 py-2.5 rounded-xl btn-secondary font-semibold"
               >
                 Login
               </Link>
@@ -228,21 +228,21 @@ const Navbar = () => {
               <Link
                 to="/signup"
                 onClick={() => setOpen(false)}
-                className="block w-full text-center px-4 py-2 rounded-xl bg-pink-600 text-white hover:bg-pink-700 transition"
+                className="block w-full text-center px-4 py-2.5 rounded-xl btn-primary font-semibold"
               >
                 Sign Up
               </Link>
-            </>
+            </div>
           )}
 
           {user && (
             <>
-              <div className="flex flex-col items-center space-y-2 px-4 py-3 border-t border-gray-200 mt-2 pt-4">
+              <div className="flex flex-col items-center space-y-2 px-4 py-3 border-t border-[#F6D1DA] mt-2 pt-4">
                 {user.profileImageUrl ? (
                   <img
                     src={user.profileImageUrl}
                     alt={user.firstName}
-                    className="w-20 h-20 rounded-full object-cover border-4 border-pink-300 shadow-lg"
+                    className="w-20 h-20 rounded-full object-cover border-4 border-[#C88B7B] shadow-lg"
                     onError={(e) => {
                       e.target.style.display = 'none';
                       e.target.nextSibling.style.display = 'flex';
@@ -250,17 +250,17 @@ const Navbar = () => {
                   />
                 ) : null}
                 {!user.profileImageUrl && (
-                  <div className="w-20 h-20 rounded-full bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center border-4 border-pink-300 shadow-lg">
+                  <div className="w-20 h-20 rounded-full bg-[#7C1835] flex items-center justify-center border-4 border-[#C88B7B] shadow-lg">
                     <User size={32} className="text-white" />
                   </div>
                 )}
-                <span className="text-gray-800 font-bold text-xl">{user.firstName}</span>
+                <span className="text-[#2B171D] font-bold text-xl">{user.firstName}</span>
               </div>
 
               <Link
                 to="/profile"
                 onClick={() => setOpen(false)}
-                className="block w-full text-center px-4 py-2 mt-2 rounded-xl bg-gradient-to-r from-pink-500 to-purple-600 text-white hover:from-pink-600 hover:to-purple-700 transition"
+                className="block w-full text-center px-4 py-2.5 rounded-xl btn-secondary font-semibold"
               >
                 Profile
               </Link>
@@ -269,7 +269,7 @@ const Navbar = () => {
                   handleLogout();
                   setOpen(false);
                 }}
-                className="block w-full text-center px-4 py-2 rounded-xl bg-red-600 text-white hover:bg-red-700 transition"
+                className="block w-full text-center px-4 py-2.5 rounded-xl btn-primary font-semibold"
               >
                 Logout
               </button>

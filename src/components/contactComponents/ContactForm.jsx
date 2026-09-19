@@ -46,7 +46,7 @@ const ContactForm = () => {
     } catch (err) {
       const message =
         !err.response && err.message === "Network Error"
-          ? "Unable to reach the server. Make sure the backend is running (npm --prefix backend run dev)."
+          ? "Unable to reach the server. Make sure the backend is running."
           : err.response?.data?.message || "Failed to send message. Please try again.";
       setSubmitStatus({ type: "error", message });
       toast.error(message);
@@ -59,14 +59,14 @@ const ContactForm = () => {
     <>
       <Toaster />
       <motion.section
-        className="max-w-5xl mx-auto bg-white p-10 rounded-3xl shadow-xl px-6 mb-20"
+        className="max-w-5xl mx-auto bg-[#FAF0F3] p-10 rounded-3xl shadow-xl border border-[#F6D1DA] px-8 mb-20"
         initial={{ opacity: 0, y: 30 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8 }}
       >
         <motion.h2
-          className="text-3xl font-bold text-gray-800 text-center mb-10"
+          className="text-3xl font-extrabold text-[#7C1835] text-center mb-10"
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -85,18 +85,18 @@ const ContactForm = () => {
         >
           {submitStatus && (
             <motion.div
-              className={`md:col-span-2 flex items-center gap-3 p-4 rounded-xl text-sm font-medium ${
+              className={`md:col-span-2 flex items-center gap-3 p-4 rounded-xl text-sm font-semibold ${
                 submitStatus.type === "success"
-                  ? "bg-green-50 text-green-700 border border-green-200"
-                  : "bg-red-50 text-red-700 border border-red-200"
+                  ? "bg-[#FAF0F3] text-[#7C1835] border border-[#F6D1DA]"
+                  : "bg-[#A31D36]/10 text-[#A31D36] border border-[#A31D36]/30"
               }`}
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
             >
               {submitStatus.type === "success" ? (
-                <CheckCircle className="w-5 h-5 flex-shrink-0" />
+                <CheckCircle className="w-5 h-5 flex-shrink-0 text-[#7C1835]" />
               ) : (
-                <AlertCircle className="w-5 h-5 flex-shrink-0" />
+                <AlertCircle className="w-5 h-5 flex-shrink-0 text-[#A31D36]" />
               )}
               {submitStatus.message}
             </motion.div>
@@ -109,16 +109,16 @@ const ContactForm = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.4 }}
           >
-            <label className="text-gray-700 font-semibold mb-1">Your Name</label>
+            <label className="text-[#2B171D] font-semibold mb-2">Your Name</label>
             <input
               type="text"
               name="name"
-              placeholder="Enter your name"
+              placeholder="Enter your full name"
               value={formData.name}
               onChange={handleChange}
               required
               disabled={isSubmitting}
-              className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full px-4 py-3 rounded-xl border border-[#F6D1DA] bg-white focus:ring-2 focus:ring-[#7C1835] outline-none text-[#2B171D] font-medium"
             />
           </motion.div>
 
@@ -129,16 +129,16 @@ const ContactForm = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.5 }}
           >
-            <label className="text-gray-700 font-semibold mb-1">Your Email</label>
+            <label className="text-[#2B171D] font-semibold mb-2">Your Email</label>
             <input
               type="email"
               name="email"
-              placeholder="Enter your email"
+              placeholder="Enter your email address"
               value={formData.email}
               onChange={handleChange}
               required
               disabled={isSubmitting}
-              className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full px-4 py-3 rounded-xl border border-[#F6D1DA] bg-white focus:ring-2 focus:ring-[#7C1835] outline-none text-[#2B171D] font-medium"
             />
           </motion.div>
 
@@ -149,7 +149,7 @@ const ContactForm = () => {
             viewport={{ once: true }}
             transition={{ delay: 0.6 }}
           >
-            <label className="text-gray-700 font-semibold mb-1">Message</label>
+            <label className="text-[#2B171D] font-semibold mb-2">Message</label>
             <textarea
               name="message"
               rows="6"
@@ -158,7 +158,7 @@ const ContactForm = () => {
               onChange={handleChange}
               required
               disabled={isSubmitting}
-              className="border border-gray-300 rounded-lg px-4 py-3 focus:outline-none focus:ring-2 focus:ring-pink-500"
+              className="w-full px-4 py-3 rounded-xl border border-[#F6D1DA] bg-white focus:ring-2 focus:ring-[#7C1835] outline-none text-[#2B171D] font-medium"
             ></textarea>
           </motion.div>
 
@@ -172,11 +172,11 @@ const ContactForm = () => {
             <motion.button
               type="submit"
               disabled={isSubmitting}
-              className="px-10 py-3 bg-pink-600 text-white text-lg font-bold rounded-xl hover:bg-pink-700 transition shadow-md disabled:opacity-50 disabled:cursor-not-allowed"
-              whileHover={{ scale: isSubmitting ? 1 : 1.05 }}
-              whileTap={{ scale: isSubmitting ? 1 : 0.95 }}
+              className="w-full md:w-auto px-10 py-3.5 btn-primary text-white text-lg font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
+              whileHover={{ scale: isSubmitting ? 1 : 1.03 }}
+              whileTap={{ scale: isSubmitting ? 1 : 0.97 }}
             >
-              {isSubmitting ? "Sending..." : "Send Message"}
+              {isSubmitting ? "Sending..." : "Submit Secure Message"}
             </motion.button>
           </motion.div>
         </motion.form>

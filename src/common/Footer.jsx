@@ -8,7 +8,7 @@ const Footer = () => {
   };
 
   return (
-    <footer className="bg-gradient-to-b from-gray-900 to-black text-gray-300 mt-16">
+    <footer className="bg-[#2B171D] text-[#F8F4EF] mt-16 border-t border-[#7C1835]/30">
       {/* Main Content */}
       <div className="max-w-7xl mx-auto px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 lg:gap-12">
@@ -20,11 +20,11 @@ const Footer = () => {
                 alt="AdultMixer Logo"
                 className="h-14 md:h-16 w-auto object-contain drop-shadow-lg"
               />
-              <h2 className="text-xl md:text-2xl font-bold text-pink-500 leading-tight">
-                Adultmixer <span className="text-white">Calgary</span>
+              <h2 className="text-xl md:text-2xl font-bold text-[#F6D1DA] leading-tight">
+                Adultmixer <span className="text-[#C88B7B]">Calgary</span>
               </h2>
             </div>
-            <p className="text-sm md:text-base text-gray-300 max-w-md leading-relaxed mb-6">
+            <p className="text-sm md:text-base text-[#F8F4EF]/80 max-w-md leading-relaxed mb-6">
               A modern platform to connect, meet, and explore meaningful
               relationships. Join our community and discover your perfect match
               today.
@@ -35,7 +35,7 @@ const Footer = () => {
               <Link
                 to="/"
                 onClick={scrollToTop}
-                className="w-10 h-10 rounded-full bg-gray-800 hover:bg-pink-600 flex items-center justify-center transition-all duration-300 hover:scale-110"
+                className="w-10 h-10 rounded-full bg-[#7C1835] text-white hover:bg-[#C88B7B] hover:text-[#2B171D] flex items-center justify-center transition-all duration-300 hover:scale-110"
                 aria-label="Facebook"
               >
                 <svg
@@ -50,7 +50,7 @@ const Footer = () => {
               <Link
                 to="/"
                 onClick={scrollToTop}
-                className="w-10 h-10 rounded-full bg-gray-800 hover:bg-pink-600 flex items-center justify-center transition-all duration-300 hover:scale-110"
+                className="w-10 h-10 rounded-full bg-[#7C1835] text-white hover:bg-[#C88B7B] hover:text-[#2B171D] flex items-center justify-center transition-all duration-300 hover:scale-110"
                 aria-label="Instagram"
               >
                 <svg
@@ -65,7 +65,7 @@ const Footer = () => {
               <Link
                 to="/"
                 onClick={scrollToTop}
-                className="w-10 h-10 rounded-full bg-gray-800 hover:bg-pink-600 flex items-center justify-center transition-all duration-300 hover:scale-110"
+                className="w-10 h-10 rounded-full bg-[#7C1835] text-white hover:bg-[#C88B7B] hover:text-[#2B171D] flex items-center justify-center transition-all duration-300 hover:scale-110"
                 aria-label="Pinterest"
               >
                 <svg
@@ -80,7 +80,7 @@ const Footer = () => {
               <Link
                 to="/"
                 onClick={scrollToTop}
-                className="w-10 h-10 rounded-full bg-gray-800 hover:bg-pink-600 flex items-center justify-center transition-all duration-300 hover:scale-110"
+                className="w-10 h-10 rounded-full bg-[#7C1835] text-white hover:bg-[#C88B7B] hover:text-[#2B171D] flex items-center justify-center transition-all duration-300 hover:scale-110"
                 aria-label="LinkedIn"
               >
                 <svg
@@ -96,7 +96,7 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div>
-            <h3 className="text-xl font-semibold text-white mb-4 border-b border-gray-800 pb-2">
+            <h3 className="text-xl font-semibold text-[#F6D1DA] mb-4 border-b border-[#7C1835]/40 pb-2">
               Quick Links
             </h3>
             <ul className="space-y-3 text-base">
@@ -104,45 +104,45 @@ const Footer = () => {
                 <Link
                   to="/"
                   onClick={scrollToTop}
-                  className="hover:text-pink-600 transition-colors duration-200 flex items-center gap-2"
+                  className="hover:text-[#F6D1DA] text-[#F8F4EF]/80 transition-colors duration-200 flex items-center gap-2"
                 >
-                  <span className="text-white">›</span> Home
+                  <span className="text-[#C88B7B]">›</span> Home
                 </Link>
               </li>
               <li>
                 <Link
                   to="/explore"
                   onClick={scrollToTop}
-                  className="hover:text-pink-600 transition-colors duration-200 flex items-center gap-2"
+                  className="hover:text-[#F6D1DA] text-[#F8F4EF]/80 transition-colors duration-200 flex items-center gap-2"
                 >
-                  <span className="text-white">›</span> Explore
+                  <span className="text-[#C88B7B]">›</span> Explore
                 </Link>
               </li>
               <li>
                 <Link
                   to="/matches"
                   onClick={scrollToTop}
-                  className="hover:text-pink-600 transition-colors duration-200 flex items-center gap-2"
+                  className="hover:text-[#F6D1DA] text-[#F8F4EF]/80 transition-colors duration-200 flex items-center gap-2"
                 >
-                  <span className="text-white">›</span> Matches
+                  <span className="text-[#C88B7B]">›</span> Matches
                 </Link>
               </li>
               <li>
                 <Link
                   to="/pricing"
                   onClick={scrollToTop}
-                  className="hover:text-pink-600 transition-colors duration-200 flex items-center gap-2"
+                  className="hover:text-[#F6D1DA] text-[#F8F4EF]/80 transition-colors duration-200 flex items-center gap-2"
                 >
-                  <span className="text-white">›</span> Pricing
+                  <span className="text-[#C88B7B]">›</span> Pricing
                 </Link>
               </li>
               <li>
                 <Link
                   to="/contact"
                   onClick={scrollToTop}
-                  className="hover:text-pink-600 transition-colors duration-200 flex items-center gap-2"
+                  className="hover:text-[#F6D1DA] text-[#F8F4EF]/80 transition-colors duration-200 flex items-center gap-2"
                 >
-                  <span className="text-white">›</span> Contact
+                  <span className="text-[#C88B7B]">›</span> Contact
                 </Link>
               </li>
             </ul>
@@ -150,7 +150,7 @@ const Footer = () => {
 
           {/* Account Links */}
           <div>
-            <h3 className="text-xl font-semibold text-white mb-4 border-b border-gray-800 pb-2">
+            <h3 className="text-xl font-semibold text-[#F6D1DA] mb-4 border-b border-[#7C1835]/40 pb-2">
               Account
             </h3>
             <ul className="space-y-3 text-base">
@@ -158,36 +158,36 @@ const Footer = () => {
                 <Link
                   to="/login"
                   onClick={scrollToTop}
-                  className="hover:text-pink-600 transition-colors duration-200 flex items-center gap-2"
+                  className="hover:text-[#F6D1DA] text-[#F8F4EF]/80 transition-colors duration-200 flex items-center gap-2"
                 >
-                  <span className="text-white">›</span> Login
+                  <span className="text-[#C88B7B]">›</span> Login
                 </Link>
               </li>
               <li>
                 <Link
                   to="/signup"
                   onClick={scrollToTop}
-                  className="hover:text-pink-600 transition-colors duration-200 flex items-center gap-2"
+                  className="hover:text-[#F6D1DA] text-[#F8F4EF]/80 transition-colors duration-200 flex items-center gap-2"
                 >
-                  <span className="text-white">›</span> Sign Up
+                  <span className="text-[#C88B7B]">›</span> Sign Up
                 </Link>
               </li>
               <li>
                 <Link
                   to="/privacy-policy"
                   onClick={scrollToTop}
-                  className="hover:text-pink-600 transition-colors duration-200 flex items-center gap-2"
+                  className="hover:text-[#F6D1DA] text-[#F8F4EF]/80 transition-colors duration-200 flex items-center gap-2"
                 >
-                  <span className="text-white">›</span> Privacy Policy
+                  <span className="text-[#C88B7B]">›</span> Privacy Policy
                 </Link>
               </li>
               <li>
                 <Link
                   to="/terms-of-service"
                   onClick={scrollToTop}
-                  className="hover:text-pink-600 transition-colors duration-200 flex items-center gap-2"
+                  className="hover:text-[#F6D1DA] text-[#F8F4EF]/80 transition-colors duration-200 flex items-center gap-2"
                 >
-                  <span className="text-white">›</span> Terms of Service
+                  <span className="text-[#C88B7B]">›</span> Terms of Service
                 </Link>
               </li>
             </ul>
@@ -196,15 +196,15 @@ const Footer = () => {
       </div>
 
       {/* Bottom Bar */}
-      <div className="border-t border-gray-800">
+      <div className="border-t border-[#7C1835]/40 bg-[#231217]">
         <div className="max-w-7xl mx-auto px-6 py-5">
           <div className="flex flex-col md:flex-row justify-between items-center gap-3">
-            <p className="text-base text-gray-300">
+            <p className="text-base text-[#F8F4EF]/70">
               © {new Date().getFullYear()} Adultmixer Calgary. All Rights
               Reserved.
             </p>
-            <p className="text-base text-gray-300">
-              Made with <span className="text-pink-600">♥</span> in Calgary
+            <p className="text-base text-[#F8F4EF]/70">
+              Made with <span className="text-[#A31D36]">♥</span> in Calgary
             </p>
           </div>
         </div>

@@ -77,19 +77,19 @@ const PaymentSuccess = () => {
   }, [expectedPlan, sessionId]);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-100 pt-28 pb-16 px-4">
+    <div className="min-h-screen bg-[#F8F4EF] pt-28 pb-16 px-4 text-[#2B171D] flex items-center justify-center">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="max-w-lg mx-auto bg-white rounded-3xl shadow-2xl p-10 text-center"
+        className="max-w-lg w-full mx-auto bg-[#FAF0F3] rounded-3xl shadow-xl border border-[#F6D1DA] p-10 text-center"
       >
         {status === "confirming" && (
           <>
-            <Loader2 className="w-16 h-16 text-pink-600 animate-spin mx-auto mb-6" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-3">
+            <Loader2 className="w-16 h-16 text-[#7C1835] animate-spin mx-auto mb-6" />
+            <h1 className="text-2xl font-extrabold text-[#7C1835] mb-3">
               Confirming your payment...
             </h1>
-            <p className="text-gray-600">
+            <p className="text-[#6B545A] font-medium">
               Please wait while we verify your subscription with the payment
               provider. This usually takes a few seconds.
             </p>
@@ -98,27 +98,27 @@ const PaymentSuccess = () => {
 
         {status === "confirmed" && (
           <>
-            <div className="w-20 h-20 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <Check className="w-10 h-10 text-green-600" />
+            <div className="w-20 h-20 bg-[#7C1835] rounded-full flex items-center justify-center mx-auto mb-6 shadow-md">
+              <Check className="w-10 h-10 text-white" />
             </div>
-            <h1 className="text-2xl font-bold text-gray-900 mb-3">
+            <h1 className="text-3xl font-extrabold text-[#7C1835] mb-3">
               Subscription Active!
             </h1>
-            <p className="text-gray-600 mb-8">
+            <p className="text-[#6B545A] mb-8 font-medium">
               Your{" "}
-              <strong>{subscription?.planDetails?.name ?? subscription?.plan}</strong>{" "}
+              <strong className="text-[#2B171D]">{subscription?.planDetails?.name ?? subscription?.plan}</strong>{" "}
               plan is now active. Enjoy your premium features!
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 to="/explore"
-                className="px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-xl font-semibold hover:from-pink-700 hover:to-purple-700 transition"
+                className="px-6 py-3.5 btn-primary text-white rounded-xl font-bold shadow-md cursor-pointer"
               >
                 Start Exploring
               </Link>
               <Link
                 to="/profile"
-                className="px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-semibold hover:border-gray-300 transition"
+                className="px-6 py-3.5 btn-secondary rounded-xl font-bold shadow-sm cursor-pointer"
               >
                 Manage Subscription
               </Link>
@@ -128,24 +128,24 @@ const PaymentSuccess = () => {
 
         {status === "timeout" && (
           <>
-            <XCircle className="w-16 h-16 text-amber-500 mx-auto mb-6" />
-            <h1 className="text-2xl font-bold text-gray-900 mb-3">
+            <XCircle className="w-16 h-16 text-[#C88B7B] mx-auto mb-6" />
+            <h1 className="text-2xl font-extrabold text-[#7C1835] mb-3">
               Still Processing
             </h1>
-            <p className="text-gray-600 mb-8">
+            <p className="text-[#6B545A] mb-8 font-medium">
               Your payment may still be processing. Check your profile in a few
               minutes, or contact support if your subscription does not appear.
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
               <Link
                 to="/profile"
-                className="px-6 py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white rounded-xl font-semibold"
+                className="px-6 py-3.5 btn-primary text-white rounded-xl font-bold shadow-md"
               >
                 Check Profile
               </Link>
               <Link
                 to="/pricing"
-                className="px-6 py-3 border-2 border-gray-200 text-gray-700 rounded-xl font-semibold"
+                className="px-6 py-3.5 btn-secondary rounded-xl font-bold"
               >
                 Back to Pricing
               </Link>

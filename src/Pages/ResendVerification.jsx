@@ -35,11 +35,11 @@ const ResendVerification = () => {
   };
 
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-gradient-to-br from-pink-100 via-purple-50 to-pink-50 px-4 py-28">
+    <div className="min-h-screen w-full flex items-center justify-center bg-[#F8F4EF] px-4 py-28 text-[#2B171D]">
       <Toaster />
 
       <motion.div
-        className="w-full max-w-md bg-white/90 backdrop-blur-sm rounded-3xl shadow-2xl p-8 md:p-10 border border-pink-100"
+        className="w-full max-w-md bg-[#FAF0F3] rounded-3xl shadow-xl p-8 md:p-10 border border-[#F6D1DA]"
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, type: "spring" }}
@@ -51,15 +51,15 @@ const ResendVerification = () => {
           animate={{ opacity: 1, scale: 1 }}
           transition={{ delay: 0.2, duration: 0.5 }}
         >
-          <div className="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-br from-pink-500 to-purple-600 rounded-full mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 bg-[#7C1835] rounded-full mb-4 shadow-md">
             <Mail className="text-white" size={32} />
           </div>
 
-          <h2 className="text-3xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent mb-2">
+          <h2 className="text-3xl font-extrabold text-[#7C1835] mb-2">
             Resend Verification
           </h2>
 
-          <p className="text-gray-600 text-sm">
+          <p className="text-[#6B545A] text-sm font-medium">
             Enter your email to receive a new verification link
           </p>
         </motion.div>
@@ -70,23 +70,23 @@ const ResendVerification = () => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
           >
-            <div className="bg-green-50 border border-green-200 rounded-xl p-6 text-center">
-              <div className="text-green-600 text-5xl mb-4">✉️</div>
-              <h3 className="text-green-800 font-semibold text-lg mb-2">
+            <div className="bg-[#FAF0F3] border border-[#F6D1DA] rounded-xl p-6 text-center">
+              <div className="text-[#7C1835] text-5xl mb-4">✉️</div>
+              <h3 className="text-[#7C1835] font-extrabold text-lg mb-2">
                 Email Sent!
               </h3>
-              <p className="text-green-700 text-sm">
+              <p className="text-[#6B545A] text-sm font-medium">
                 We've sent a new verification link to{" "}
-                <span className="font-semibold">{email}</span>
+                <span className="font-bold text-[#2B171D]">{email}</span>
               </p>
-              <p className="text-green-600 text-sm mt-2">
+              <p className="text-[#6B545A] text-sm mt-2 font-medium">
                 Please check your inbox and click the verification link.
               </p>
             </div>
 
             <Link to="/login">
               <motion.button
-                className="w-full py-3 bg-gradient-to-r from-pink-600 to-purple-600 text-white font-semibold rounded-xl hover:from-pink-700 hover:to-purple-700 transition"
+                className="w-full py-3.5 btn-primary text-white font-bold rounded-xl shadow-lg"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -103,12 +103,12 @@ const ResendVerification = () => {
             transition={{ delay: 0.4 }}
           >
             <div>
-              <label className="block text-gray-700 font-semibold mb-2 text-sm">
+              <label className="block text-[#2B171D] font-bold mb-2 text-sm">
                 Email Address
               </label>
               <div className="relative">
                 <Mail
-                  className="absolute left-4 top-3.5 text-gray-400"
+                  className="absolute left-4 top-3.5 text-[#7C1835]"
                   size={20}
                 />
                 <input
@@ -116,7 +116,7 @@ const ResendVerification = () => {
                   placeholder="your.email@example.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full pl-12 pr-4 py-3 border border-gray-300 rounded-xl focus:ring-2 focus:ring-pink-600 outline-none"
+                  className="w-full pl-12 pr-4 py-3 border border-[#F6D1DA] bg-white rounded-xl focus:ring-2 focus:ring-[#7C1835] outline-none text-[#2B171D] font-medium"
                 />
               </div>
             </div>
@@ -124,7 +124,7 @@ const ResendVerification = () => {
             <motion.button
               type="submit"
               disabled={isLoading}
-              className="w-full py-4 bg-gradient-to-r from-pink-600 to-purple-600 text-white text-lg font-bold rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full py-3.5 btn-primary text-white text-lg font-bold rounded-xl shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
               whileHover={{ scale: isLoading ? 1 : 1.02 }}
               whileTap={{ scale: isLoading ? 1 : 0.98 }}
             >
@@ -134,7 +134,7 @@ const ResendVerification = () => {
             <Link to="/login">
               <button
                 type="button"
-                className="w-full py-3 text-gray-600 font-semibold rounded-xl hover:bg-gray-100 transition flex items-center justify-center gap-2"
+                className="w-full py-3 text-[#7C1835] font-bold rounded-xl hover:bg-[#F6D1DA]/50 transition flex items-center justify-center gap-2 cursor-pointer"
               >
                 <ArrowLeft size={20} />
                 Back to Login
